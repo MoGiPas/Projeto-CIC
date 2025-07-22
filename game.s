@@ -4,9 +4,9 @@
 	.include "maps/level1.data"
 # Map 
 	.include "img/bomb.data" 	
-	.include "img/cobblestone.data" 	# 0 = chão
+	.include "img/cobblestone.data" 	# 0 = chï¿½o
 	.include "img/wall.data"          	# 1 = parede
-	.include "img/brick.data"         	# 2 = bloco quebrável
+	.include "img/brick.data"         	# 2 = bloco quebrï¿½vel
 	.include "img/player.data"        	# jogador
 	.include "img/lava.data" 			# lava
 # Steve
@@ -18,7 +18,7 @@
 # Game Over
 	.include "img/game_over.data"
 # Songs
-	.include "songs/songs.data"
+	.include "songs/musica-0.s"
 
 PLAYER_POS: .byte 1, 1
 PLAYER_LIFE: .byte 40
