@@ -1,6 +1,4 @@
-.data
-	.global MELODIA_0
-	.global TAMANHO_0
+
 
 # Cada linha é um compasso
 

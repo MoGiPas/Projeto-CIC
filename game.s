@@ -18,7 +18,8 @@
 # Game Over
 	.include "img/game_over.data"
 # Songs
-	.include "songs/musica-0.s"
+	.include "songs/musica-0.data"
+	.include "songs/musica-1.data"
 
 PLAYER_POS: .byte 1, 1
 PLAYER_LIFE: .byte 40
@@ -39,15 +40,15 @@ BOMB_TIMER: .word 0 			# Bomb's timer
 	li s8 1
 	li s10 0 
 	
-	la s11 NOTES_SWEDEN
-	la t0 LENGTH_SWEDEN
+	la s11 MELODIA_0
+	la t0 TAMANHO_0
 	lw s0 0(t0) 	# Number of notes
 	TITLE_SCREEN_SONG.LOOP:
 	# Music info (MINECRAFT song)
 	li s7,0			# notes count = 0
-	la s0,LENGTH_MINECRAFT	
+	la s0,TAMANHO_0	
 	lw s1,0(s0)		# number of notes
-	la s0,NOTES_MINECRAFT	# notes adress
+	la s0,MELODIA_0	# notes adress
 	li a3,100		# volume
 
     # Waits for user to press space so that the game can begin
@@ -56,7 +57,7 @@ BOMB_TIMER: .word 0 			# Bomb's timer
 	beq s7,s1,TITLE_SCREEN_SONG.LOOP
 	lw a0,0(s0)		# read note
 	lw a1,4(s0)		# note length
-	li a2,88 		# instrument
+	li a2,82		# instrument
 	li a7,31		# ecall = 31
 	ecall			# play sound
 	mv a0,a1		# move length of note to a0(a0 ms of pause)
@@ -596,9 +597,9 @@ GAME_OVER:
 GAME_OVER_SONG.LOOP:
 	# Music info (SWEDEN song)
 	li s7,0				# notes count = 0
-	la s0,LENGTH_SWEDEN	
+	la s0,TAMANHO_1	
 	lw s1,0(s0)			# number of notes
-	la s0,NOTES_SWEDEN	# notes adress
+	la s0,MELODIA_1	# notes adress
 	li a3,100				# volume
 	GAME_OVER.AWAIT:
 	# Play note
