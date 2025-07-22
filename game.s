@@ -2,15 +2,17 @@
 # Map data
 .data
 	.include "maps/level1.data"
+	.include "maps/level2.data"
 # Map 
 	.include "img/bomb.data" 	
-	.include "img/cobblestone.data" 	# 0 = chï¿½o
-	.include "img/wall.data"          	# 1 = parede
-	.include "img/brick.data"         	# 2 = bloco quebrï¿½vel
+	.include "img/cobblestone.data" 	# 0 = chão
+	.include "img/wall.data"          		# 1 = parede
+	.include "img/brick.data"         		# 2 = bloco quebrável
 	.include "img/player.data"        	# jogador
 	.include "img/lava.data" 			# lava
+	.include "img/BANNER_MARIO.data" 		# banner  lateral
 # Steve
-	.include "img/steve_idle.data"
+	.include "img/mario_idle.data"
 	.include "img/steve_walk1.data"
 	.include "img/steve_walk2.data"
 	.include "img/steve_walk3.data"
@@ -18,8 +20,7 @@
 # Game Over
 	.include "img/game_over.data"
 # Songs
-	.include "songs/musica-0.data"
-	.include "songs/musica-1.data"
+	.include "songs/songs.data"
 
 PLAYER_POS: .byte 1, 1
 PLAYER_LIFE: .byte 40
@@ -31,7 +32,7 @@ BOMB_POS: .word 0 			# Bomb's Position
 BOMB_TIMER: .word 0 			# Bomb's timer
 
 .text 
-# s6 = current framse (0 or 1)
+# s6 = current frame (0 or 1)
 # s7 = last animation time
 # s8 = animation frame(1 to 4)
 # s10 = music note index
@@ -39,25 +40,26 @@ BOMB_TIMER: .word 0 			# Bomb's timer
 	li s7 0
 	li s8 1
 	li s10 0 
-	
-	la s11 MELODIA_0
-	la t0 TAMANHO_0
-	lw s0 0(t0) 	# Number of notes
+	la s11 NOTES_SWEDEN
+	la t0 LENGTH_SWEDEN
+	lw s0 0(t0) 		# Number of notes
 	TITLE_SCREEN_SONG.LOOP:
 	# Music info (MINECRAFT song)
 	li s7,0			# notes count = 0
-	la s0,TAMANHO_0	
+	la s0,LENGTH_MINECRAFT	
 	lw s1,0(s0)		# number of notes
-	la s0,MELODIA_0	# notes adress
-	li a3,100		# volume
+	la s0,NOTES_MINECRAFT	# notes adress
+	li a3,100			# volume
 
     # Waits for user to press space so that the game can begin
     TITLE_SCREEN.AWAIT:
+    
+    	
     	# Play note
 	beq s7,s1,TITLE_SCREEN_SONG.LOOP
 	lw a0,0(s0)		# read note
 	lw a1,4(s0)		# note length
-	li a2,82		# instrument
+	li a2,88 		# instrument
 	li a7,31		# ecall = 31
 	ecall			# play sound
 	mv a0,a1		# move length of note to a0(a0 ms of pause)
@@ -91,18 +93,33 @@ SETUP_LEVEL_1:
 	li t0 3	 # Initial Player HP
 	sb t0 0(t1)
 	la t1 CURR_LEVEL
-	li t0 1	 # Sets the current level
-	li t0 '1'
+	li t0 1	 # Sets the current level'
 	sb t0 0(t1)
 	
+	j SETUP_MAP
+SETUP_LEVEL_2:
+	la s9 level2
+	la t1 PLAYER_POS
+	li t0, 0x406
+	sh t0, 0(t1)
+	la t1 PLAYER_LIFE
+	li t0 3
+	sb t0 0(t1)
+	la t1 CURR_LEVEL
+	li t0 2
+	sb t0 0(t1)
 	
 	j SETUP_MAP
 
 # Resets the map to its original form
-SETUP_MAP: 
+SETUP_MAP:
+	li t2 1
+	la s5 level2
+	bne t0 t2 SETUP_MAP_2
 	la s5, level1
+	SETUP_MAP_2:
 	li t0 0
-	li t1 240
+	li t1 240 
 SETUP_MAP.LOOP:
 	lb t6 0(s9)
 	addi s5 s5 1
@@ -157,6 +174,7 @@ GAME_LOOP.MUSIC_DONE:
 	EXPLODE.BOMB.END:
 	
 	# Deactivate bomb
+	la t0 IS_BOMB_ACTIVE
 	li t6 0
 	sw t6 0(t0)  	# IS_BOMB_ACTIVE <- 0
 GAME_LOOP.CONTINUE:
@@ -190,11 +208,16 @@ ANIMATION.UPDATE.INCREMENT:
 ANIMATION.UPDATE.END:
 
 PRINT_UI:
-	lb a0 CURR_LEVEL
-	li a1 288
-	mv a2 zero
-	mv a3 s6
-	#call PRINT
+	la a0 bannerMario
+	li a1 0 		# x0 
+	li a2 0 		# y0
+	mv a3 s6  	# frame
+	call PRINT
+	la a0 bannerMario
+	li a1 288 		# x0 
+	li a2 0 		# y0
+	mv a3 s6  	# frame
+	call PRINT
 PRINT_TILE.SETUP:
 	mv s0 zero	# Current X
 	mv s1 zero 	# Current Y
@@ -275,7 +298,7 @@ DRAW_PLAYER.WALK3:
 	    j DRAW_PLAYER.PRINT
 
 DRAW_PLAYER.IDLE_ANIMATION:
-	    la a0 steve_idle
+	    la a0 mario_idle
 	
 DRAW_PLAYER.PRINT:
 	    la t0 PLAYER_POS
@@ -309,7 +332,7 @@ DRAW_BOMB:
 	mv a3, s6            # Frame atual
 	call PRINT
 	j GAME_LOOP
-
+	
 PRINT:
 	# Frame 0: 0xFF00 0000
 	# Frame 1: 0xFF10 0000
@@ -380,6 +403,8 @@ PROCESS_INPUT:
 	beq t2 t0 MOVE.RIGHT
 	li t0 '1'
 	beq t2 t0 SETUP_LEVEL_1
+	li t0 '2'
+	beq t2 t0 SETUP_LEVEL_2
 	li t0 'b'
 	beq t2 t0 PLACE_BOMB
 	# If no key was pressed, IS_MOVING <- 0
@@ -597,9 +622,9 @@ GAME_OVER:
 GAME_OVER_SONG.LOOP:
 	# Music info (SWEDEN song)
 	li s7,0				# notes count = 0
-	la s0,TAMANHO_1	
+	la s0,LENGTH_SWEDEN	
 	lw s1,0(s0)			# number of notes
-	la s0,MELODIA_1	# notes adress
+	la s0,NOTES_SWEDEN	# notes adress
 	li a3,100				# volume
 	GAME_OVER.AWAIT:
 	# Play note
