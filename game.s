@@ -1,12 +1,14 @@
 ########################### Aprendendo a fazer o mapa ############################ 
-# Map data
 .data
+# Title data
+	.include "img/title.data"
+# Map data
 	.include "maps/level1.data"
 # Map 
 	.include "img/bomb.data" 	
-	.include "img/cobblestone.data" 	# 0 = ch�o
+	.include "img/cobblestone.data" 	# 0 = chao
 	.include "img/wall.data"          	# 1 = parede
-	.include "img/brick.data"         	# 2 = bloco quebr�vel
+	.include "img/brick.data"         	# 2 = bloco quebravel
 	.include "img/player.data"        	# jogador
 	.include "img/lava.data" 			# lava
 # Steve
@@ -43,6 +45,12 @@ BOMB_TIMER: .word 0 			# Bomb's timer
 	la s11 MELODIA_0
 	la t0 TAMANHO_0
 	lw s0 0(t0) 	# Number of notes
+
+	TITLE_SCREEN:
+    # Title screen image
+	la a0, title
+	call PRINT
+
 	TITLE_SCREEN_SONG.LOOP:
 	# Music info (MINECRAFT song)
 	li s7,0			# notes count = 0
