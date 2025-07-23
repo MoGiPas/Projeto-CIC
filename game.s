@@ -1,9 +1,10 @@
 ########################## PROJETO BOMBERMAN #################################
 # COISAS PRA MUDAR:
 # 1 - CRIAR INIMIGOS E LOGICA DE ANDAR/ANIMACAO
-# 2 - SPRITES E ARTE DELES(EDITAR)
-# 3 - EDITAR O MAPA 2 E A CONDICAO DE VITORIA PRA CHEGAR NELE
-# 4 - ANIMACAO DA BOMBA EXPLODINDO
+# 2 - POWERUPS
+# 3 - SPRITES E ARTE DELES(EDITAR)
+# 4 - EDITAR O MAPA 2 E A CONDICAO DE VITORIA PRA CHEGAR NELE
+# 5 - ANIMACAO DA BOMBA EXPLODINDO
 ##########################################################################
 .data
 	# Map
@@ -14,10 +15,10 @@
 # Map 
 	.include "img/bomb.data"
 	.include "img/bannerMario.data" 	
-	.include "img/floor.data" 			# 0 = chao
+	.include "img/floor.data" 				# 0 = chao
 	.include "img/wall.data"          		# 1 = parede
 	.include "img/brick.data"         		# 2 = bloco quebravel
-	.include "img/player.data"        	# jogador
+	.include "img/player.data"        		# jogador
 	.include "img/bannerPreto.data"
 	
 # Enemies
@@ -30,6 +31,7 @@
 	.include "img/mario_walk4.data"
 # Game Over
 	.include "img/game_over.data"
+	.include "img/ending.data"
 # Songs
 	.include "songs/songs.data"
 	.include "songs/musica-0.data"
@@ -40,17 +42,6 @@
 	.include "img/bannerMario.data"
 	.include "img/marioHUD.data"
 	.include "img/time.data"
-
-MAX_ENEMIES: .byte 5 		# Enemies max number
-ENEMY_STRUCT_SIZE: .byte 4 	# Each enemy occupies 4 bytes (X,Y,Alive,Type)
-
-ENEMIES_DATA:
-	.space 20  		# MAX_ENEMIES * ENEMY_STRUCT_SIZE = 5 * 4 = 20 bytes
-	# Enemies Structure will be:
-	# Byte 0: X Pos
-	# Byte 1: Y Pos
-	# Byte 2: Status(0 = dead, 1 = alive)
-	# Byte 3: Enemy type
 
 PLAYER_POS: .byte 1, 1
 PLAYER_LIFE: .byte 3
@@ -128,19 +119,6 @@ SETUP_LEVEL_1:
 	li t0 1	 # Sets the current level'
 	sb t0 0(t1)
 
-	# ENEMIES SETUP
-	la s0 ENEMIES_DATA 	# Loads the base address for enemies
-
-	# Goomba
-	li t0 5 	# X Pos
-	sb t0 0(s0) # Saves X
-	li t0 5 	# Y Pos
-	sb t0 1(s0) # Saves Y
-	li t0 1		# Status: Alive
-	sb t0 2(s0) # Saves Status
-
-	# Koopa
-	
 	j SETUP_MAP
 SETUP_LEVEL_2:
 	la s9 level2
@@ -463,6 +441,8 @@ PROCESS_INPUT:
 	beq t2 t0 SETUP_LEVEL_2
 	li t0 'b'
 	beq t2 t0 PLACE_BOMB
+	li t0 'z' 
+	beq t2 t0 GAME_OVER
 	# If no key was pressed, IS_MOVING <- 0
 	la t3 IS_MOVING
 	li t4 0
@@ -678,9 +658,9 @@ GAME_OVER:
 GAME_OVER_SONG.LOOP:
 	# Music info (SWEDEN song)
 	li s7,0				# notes count = 0
-	la s0,LENGTH_SWEDEN	
+	la s0,TAMANHO_3	
 	lw s1,0(s0)			# number of notes
-	la s0,NOTES_SWEDEN	# notes adress
+	la s0,MELODIA_3	# notes adress
 	li a3,100				# volume
 	GAME_OVER.AWAIT:
 	# Play note
@@ -704,3 +684,38 @@ GAME_OVER_SONG.LOOP:
 	    	li t0 ' '
 	    	li t0 27
 	    	j GAME_OVER.AWAIT
+RESPAWN:
+   	lb t0, CURR_LEVEL
+   	li t1, 1
+   	beq t0, t1, SETUP_LEVEL_1
+   	li t1, 2
+   	beq t0, t1, SETUP_LEVEL_2
+	li t1, 6
+   	beq t0, t1, ENDING
+
+ENDING:
+	la a0 ending
+	mv a1 zero
+	mv a2 zero
+	mv a3 s6
+	call PRINT
+	
+	# Switches frame
+	li t0 0xFF200604
+	sw s6 0(t0)
+	
+	ENDING.AWAIT:   
+        li t1 0xFF200000
+        lw t0 0(t1)	
+        andi t0 t0 1
+        beqz t0 ENDING.AWAIT
+        lw t2 4(t1)  			
+        li t0 ' '
+        beq t2 t0 SETUP_LEVEL_1
+        li t0 27
+        beq t2 t0 QUIT
+        j ENDING.AWAIT
+QUIT:
+   	li a7, 10
+   	ecall
+   	
