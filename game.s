@@ -1,5 +1,10 @@
-########################### Aprendendo a fazer o mapa ############################ 
- 
+########################## PROJETO BOMBERMAN #################################
+# COISAS PRA MUDAR:
+# 1 - CRIAR INIMIGOS E LOGICA DE ANDAR/ANIMACAO
+# 2 - SPRITES E ARTE DELES(EDITAR)
+# 3 - EDITAR O MAPA 2 E A CONDICAO DE VITORIA PRA CHEGAR NELE
+# 4 - ANIMACAO DA BOMBA EXPLODINDO
+##########################################################################
 .data
 	# Map
 	.include "maps/level1.data"
@@ -12,6 +17,9 @@
 	.include "img/brick.data"         		# 2 = bloco quebravel
 	.include "img/player.data"        	# jogador
 	.include "img/bannerMario.data"
+
+# Enemies
+	.include "img/goomba.data"
 # Mario
 	.include "img/mario_idle.data"
 	.include "img/mario_walk1.data"
