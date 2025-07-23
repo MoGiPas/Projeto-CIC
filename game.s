@@ -29,6 +29,8 @@
 	.include "img/mario_walk2.data"
 	.include "img/mario_walk3.data"
 	.include "img/mario_walk4.data"
+# Powers
+	.include "img/flower.data" 			# 3 = PowerUp aumenta range
 # Game Over
 	.include "img/game_over.data"
 	.include "img/ending.data"
@@ -57,6 +59,7 @@ ENEMIES_DATA:
 
 PLAYER_POS: .byte 1, 1
 PLAYER_LIFE: .byte 3
+BOMB_RADIUS: .byte 1
 CURR_LEVEL: .byte 1
 IS_MOVING: .byte 0
 LAST_MOVE_TIME: .word 0
@@ -283,6 +286,8 @@ PRINT_TILE:
 		beq t0 t1 SPRITE.WALL
 		li t1 2
 		beq t0 t1 SPRITE.BRICK
+		li t1 3
+		beq t0 t1 SPRITE.POWERUP_FLOWER
 		SPRITE.FLOOR:
 			la a0 floor
 			j PRINT_TILE.GET_SPRITE.END
@@ -291,6 +296,9 @@ PRINT_TILE:
 			j PRINT_TILE.GET_SPRITE.END
 		SPRITE.BRICK:
 			la a0 brick
+			j PRINT_TILE.GET_SPRITE.END
+		SPRITE.POWERUP_FLOWER:
+			la a0 flower
 			j PRINT_TILE.GET_SPRITE.END
 	PRINT_TILE.GET_SPRITE.END:
 	# Position of the (x, y) tile is ( 16 * x + 32, 16 * y)
@@ -539,6 +547,8 @@ CHECK_TILE:
 	beq s10 s11 PROCESS.WALL
 	li s11 2
 	beq s10 s11 PROCESS.BRICK
+	li s11 3
+	beq s10 s11 PROCESS.COLLECT_FLOWER # 3 -> Collects Flower powerup
 	
 PROCESS.PATH:
 	# Save new position
@@ -575,6 +585,14 @@ PROCESS.BRICK:
 	li a3 127 		# volume
 	li a7 31 		# ecall
 	ecall
+
+PROCESS.COLLECT_FLOWER:
+	la t0 PLAYER_BOMB_RADIUS
+	lb t1 0(t0)
+	addi t1 t1 1
+	sb t1 0(t0)
+	SOUND_FLOWER:
+		
 
 PROCESS.END:
 	ret
@@ -650,7 +668,7 @@ EXPLODE_TILE:
 	li t3 2  		# brick
 	bne t2 t3 EXPLODE_TILE.END
 	
-	# Som de BOMBA DEBUG(EXPLOSAO)
+	# Explosion sound
 	li a0 30
 	li a1 350
 	li a2 127
@@ -658,7 +676,7 @@ EXPLODE_TILE:
 	li a7 31
 	ecall
 	
-	li t4 0 		# floor
+	li t4 3 		# floor
 	sb t4 0(t6) 	# changes the current tile to a floor tile
 	
 EXPLODE_TILE.END:
