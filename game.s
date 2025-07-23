@@ -231,6 +231,7 @@ PRINT_UI:
 	li a2 0 		# y0
 	mv a3 s6  	# frame
 	call PRINT
+
 	la a0 marioHUD
 	li a1 288 		# x0 
 	li a2,0 		# y0
@@ -617,10 +618,10 @@ EXPLODE_TILE:
 	li t3 2  		# brick
 	bne t2 t3 EXPLODE_TILE.END
 	
-	# Som de DEBUG(EXPLOSAO)
-	li a0 35
+	# Som de BOMBA DEBUG(EXPLOSAO)
+	li a0 30
 	li a1 100
-	li a2 58
+	li a2 120
 	li a3 127
 	li a7 31
 	ecall
