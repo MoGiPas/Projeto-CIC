@@ -569,6 +569,8 @@ CHECK_TILE:
 	beq s10 s11 PROCESS.COLLECT_FLOWER # 3 -> Collects Flower powerup
 	li s11 4                             # objetivo
     beq s10 s11 PROCESS.REACH_GOAL       # Salta para handler
+	li s11 5
+	beq s10 s11 PROCESS.BRICK
     j PROCESS.PATH
 
 PROCESS.COLLECT_FLOWER:
