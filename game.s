@@ -46,6 +46,7 @@ ENEMY_STRUCT_SIZE: .byte 4 	# Each enemy occupies 4 bytes (X,Y,Alive,Type)
 
 ENEMIES_DATA:
 	.space 20  		# MAX_ENEMIES * ENEMY_STRUCT_SIZE = 5 * 4 = 20 bytes
+
 	# Enemies Structure will be:
 	# Byte 0: X Pos
 	# Byte 1: Y Pos
@@ -62,6 +63,7 @@ BOMB_POS: .word 0 			# Bomb's Position
 BOMB_TIMER: .word 0 			# Bomb's timer
 
 
+
 .text 
 # s6 = current frame (0 or 1)
 # s7 = last animation time
@@ -71,6 +73,7 @@ BOMB_TIMER: .word 0 			# Bomb's timer
 	li s7 0
 	li s8 1
 	li s10 0
+	la s11,MELODIA_0
 	
 	TITLE_SCREEN:
     # Title screen image
@@ -145,7 +148,7 @@ SETUP_LEVEL_1:
 SETUP_LEVEL_2:
 	la s9 level2
 	la t1 PLAYER_POS
-	li t0, 0x406
+	li t0, 0x101
 	sh t0, 0(t1)
 	la t1 PLAYER_LIFE
 	li t0 3
@@ -183,17 +186,17 @@ GAME_LOOP:
 	 # Flip frame
    	xori s6 s6 1
 
-    	# Music (one note per loop)
+    # Music (one note per loop)
     	bge s10 s0 GAME_LOOP.MUSIC_DONE
     	lw a0 0(s11)	# note
     	lw a1 4(s11)     # length
-    	li a2 0              	# instrument
-    	li a3 30             # volume
+    	li a2 1              	# instrument
+    	li a3 40             # volume
     	li a7 31
     	ecall
 
-    addi s11 s11 8       # next note address
-    addi s10 s10 1       # increment index
+		addi s11 s11 8       # next note address
+		addi s10 s10 1       # increment index
 
 GAME_LOOP.MUSIC_DONE:
 
@@ -317,6 +320,7 @@ PRINT_TILE:
 	addi s1 s1 1
 	mv s0 zero
 	blt s1 s3 PRINT_TILE
+
 	j DRAW_PLAYER
 	# Function that prints an image according to the following arguments
 	# a0 = &image
