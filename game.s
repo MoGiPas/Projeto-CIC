@@ -775,14 +775,14 @@ GAME_OVER_SONG.LOOP:
 	la s0,TAMANHO_3	
 	lw s1,0(s0)			# number of notes
 	la s0,MELODIA_3	# notes adress
-	li a3,100				# volume
+	li a3,70				# volume
 
 	GAME_OVER.AWAIT:
 	# Play note
-		beq s7,s1,ENDING_SONG.LOOP
+		beq s7,s1,GAME_OVER_SONG.LOOP
 		lw a0,0(s0)		# read note
 		lw a1,4(s0)		# note length
-		li a2,88 		# instrument
+		li a2,43 		# instrument
 		li a7,31		# ecall = 31
 		ecall			# play sound
 		mv a0,a1		# move length of note to a0(a0 ms of pause)
@@ -827,16 +827,16 @@ ENDING:
 	ENDING_SONG.LOOP:
 	# Music info (SWEDEN song)
 	li s7,0				# notes count = 0
-	la s0,TAMANHO_3	
+	la s0,TAMANHO_1	
 	lw s1,0(s0)			# number of notes
-	la s0,MELODIA_3	# notes adress
+	la s0,MELODIA_1	# notes adress
 	li a3,100				# volume
 	ENDING.AWAIT:   
 		# Play note
 		beq s7,s1,ENDING_SONG.LOOP
 		lw a0,0(s0)		# read note
 		lw a1,4(s0)		# note length
-		li a2,88 		# instrument
+		li a2,3 		# instrument
 		li a7,31		# ecall = 31
 		ecall			# play sound
 		mv a0,a1		# move length of note to a0(a0 ms of pause)
