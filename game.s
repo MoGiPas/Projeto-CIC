@@ -10,7 +10,8 @@
 	.include "img/wall.data"          		# 1 = parede
 	.include "img/brick.data"         		# 2 = bloco quebr�vel
 	.include "img/player.data"        	# jogador
-# Steve
+	.include "img/bannerMario.data"
+# Mario
 	.include "img/mario_idle.data"
 	.include "img/mario_walk1.data"
 	.include "img/steve_walk2.data"
@@ -57,8 +58,6 @@ BOMB_TIMER: .word 0 			# Bomb's timer
 
     # Waits for user to press space so that the game can begin
     TITLE_SCREEN.AWAIT:
-    
-    	
     	# Play note
 	beq s7,s1,TITLE_SCREEN_SONG.LOOP
 	lw a0,0(s0)		# read note
