@@ -587,12 +587,12 @@ PROCESS.BRICK:
 	ecall
 
 PROCESS.COLLECT_FLOWER:
-	la t0 PLAYER_BOMB_RADIUS
+	la t0 BOMB_RADIUS
 	lb t1 0(t0)
 	addi t1 t1 1
 	sb t1 0(t0)
 	SOUND_FLOWER:
-		
+
 
 PROCESS.END:
 	ret
