@@ -762,6 +762,10 @@ DRAW_ENEMY:
 		j DRAW_GOOMBA.END
 		DRAW_GOOMBA.TURN:
 			la t1 GOOMBA_DIRECTION
+			beqz 0 # If it is going to the left, +1
+			DRAW_GOOMBA.FIX:
+				li t2 6
+				sb t2 0(t6)
 			lb t0 0(t1)
 			xori t0 t0 1  	# Flip t0
 			sb t0 0(t1)
