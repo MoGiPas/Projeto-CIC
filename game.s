@@ -7,8 +7,10 @@
 ##########################################################################
 .data
 	# Map
+	.include "img/telaInicio.data"
 	.include "maps/level1.data"
 	.include "maps/level2.data"
+
 # Map 
 	.include "img/bomb.data"
 	.include "img/bannerMario.data" 	
