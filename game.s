@@ -809,6 +809,7 @@ GAME_OVER_SONG.LOOP:
         beq t2 t0 SETUP_LEVEL_1	# space pressed -> level 1
 		li t0 27
 		beq t2 t0 QUIT		# esc pressed -> Quit
+		j GAME_OVER.AWAIT
 RESPAWN:
    	lb t0, CURR_LEVEL
    	li t1, 1
@@ -867,6 +868,7 @@ ENDING:
         beq t2 t0 SETUP_LEVEL_1	# space pressed -> level 1
 		li t0 27
 		beq t2 t0 QUIT		# esc pressed -> Quit
+		j ENDING.AWAIT
 QUIT:
    	li a7, 10 		# termina o programa
    	ecall
