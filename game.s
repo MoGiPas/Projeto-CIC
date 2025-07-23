@@ -148,7 +148,7 @@ SETUP_LEVEL_1:
 	li t0 3	 		# Initial Player HP
 	sb t0 0(t1)
 	la t1 GOOMBA_POS
-	li t0 0x301
+	li t0 0xb01
 	sh t0 0(t1)
 	la t1 GOOMBA_LIFE
 	li t0 1 		# Initial enemy hp(in this case, goomba)
