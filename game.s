@@ -1,19 +1,19 @@
 ########################### Aprendendo a fazer o mapa ############################ 
+ 
 .data
-# Map data
+	# Map
 	.include "maps/level1.data"
 	.include "maps/level2.data"
-	.include "img/BANNER_MARIO.data"
 # Map 
-	.include "img/bomb.data" 	
-	.include "img/wall.data"          	# 1 = parede
-	.include "img/brick.data"         	# 2 = bloco quebr�vel
+	.include "img/bomb.data"
+	.include "img/bannerMario.data" 	
+	.include "img/floor.data" 			# 0 = ch�o
+	.include "img/wall.data"          		# 1 = parede
+	.include "img/brick.data"         		# 2 = bloco quebr�vel
 	.include "img/player.data"        	# jogador
-	.include "img/lava.data" 			# lava
-	.include "img/floor.data"
 # Steve
 	.include "img/mario_idle.data"
-	.include "img/steve_walk1.data"
+	.include "img/mario_walk1.data"
 	.include "img/steve_walk2.data"
 	.include "img/steve_walk3.data"
 	.include "img/steve_walk4.data"
@@ -291,7 +291,7 @@ DRAW_PLAYER.WALK4:
 	    j DRAW_PLAYER.PRINT
 	
 DRAW_PLAYER.WALK1:
-	    la a0 steve_walk1
+	    la a0 mario_walk1
 	    j DRAW_PLAYER.PRINT
 	
 DRAW_PLAYER.WALK2:
