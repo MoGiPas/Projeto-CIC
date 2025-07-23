@@ -16,8 +16,7 @@
 	.include "img/wall.data"          		# 1 = parede
 	.include "img/brick.data"         		# 2 = bloco quebravel
 	.include "img/player.data"        	# jogador
-	.include "img/bannerMario.data"
-
+	
 # Enemies
 	.include "img/goomba.data"
 # Mario
@@ -34,6 +33,9 @@
 	.include "songs/musica-1.data"
 	.include "songs/musica-2.data"
 	.include "songs/musica-3.data"
+# HUD
+	.include "img/bannerMario.data"
+	.include "img/marioHUD.data"
 
 PLAYER_POS: .byte 1, 1
 PLAYER_LIFE: .byte 40
@@ -225,7 +227,7 @@ PRINT_UI:
 	li a2 0 		# y0
 	mv a3 s6  	# frame
 	call PRINT
-	la a0 bannerMario
+	la a0 marioHUD
 	li a1 288 		# x0 
 	li a2 0 		# y0
 	mv a3 s6  	# frame
