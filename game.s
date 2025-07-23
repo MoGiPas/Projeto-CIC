@@ -5,13 +5,13 @@
 # 3 - HUD
 ##########################################################################
 .data
-	# Map
+
+# Map
 	.include "img/telaInicio.data"
 	.include "maps/level1.data"
 	.include "maps/level2.data"
 
-# Map 
-	.include "img/bannerMario.data" 	
+# Tiles  	
 	.include "img/floor.data" 				# 0 = chao
 	.include "img/wall.data"          		# 1 = parede
 	.include "img/brick.data"         		# 2 = bloco quebravel
@@ -922,4 +922,5 @@ ENDING:
 QUIT:
    	li a7, 10 		# termina o programa
    	ecall
-   	
+
+
