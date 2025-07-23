@@ -42,15 +42,6 @@ LEVEL_NUM:	# Receives the current level number in a0 and return the correct imag
    	j LEVEL_NUM_END
    LVL_2:
    	la a0 lvl2
-	j LEVEL_NUM_END
-   LVL_3:
-   	la a0 lvl3
-   	j LEVEL_NUM_END
-   LVL_4:
-   	la a0 lvl4
-   	j LEVEL_NUM_END
-   LVL_5:
-   	la a0 lvl5
-   	j LEVEL_NUM_END    	
+	j LEVEL_NUM_END   	
    LEVEL_NUM_END:
    	ret
