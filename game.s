@@ -60,8 +60,8 @@ ENEMY_LIFE: .byte 0
 KOOPA_POS: .word 0
 KOOPA_LIFE: .byte 0
 
-GOOMBA_MOVE_TIME: .word 0
-KOOPA_MOVE_TIME: .word 0
+GOOMBA_TIMER: .word 0
+KOOPA_TIMER: .word 0
 
 GOOMBA_DIRECTION: .byte 0 # 0 = left 1 = right
 KOOPA_DIRECTION: .byte 0 # 0 = down 1 = up
@@ -620,6 +620,10 @@ CHECK_TILE:
     beq s10 s11 PROCESS.REACH_GOAL       # jump to handler
 	li s11 5
 	beq s10 s11 PROCESS.BRICK
+	li s11 6
+	beq s10 s11 PROCESS.GOOMBA
+	li s11 7
+	beq s10 s11 PROCESS.KOOPA
     j PROCESS.PATH
 
 PROCESS.COLLECT_FLOWER:
@@ -654,8 +658,32 @@ PROCESS.REACH_GOAL:
     
     j PROCESS.END
 
+PROCESS.GOOMBA:
+PROCESS.KOOPA:
+	# Player got hit
+    # Damage sound
+    li a0, 47
+    li a1, 150
+    li a2, 65
+    li a3, 120
+    li a7, 31
+    ecall
+	# If Mario goes to goomba
+	# Reduce life
+    la t0, PLAYER_LIFE
+    lb t1, 0(t0)
+    addi t1, t1, -1
+    sb t1, 0(t0)
+    # Verifies if life == 0
+    beqz t1, GAME_OVER
+	j PROCESS.END
+
+
+
+
+
 NEXT_LEVEL_2:
-    # Atualiza para nível 2
+    # Updates to level 2
     li t3, 2
     sb t3, 0(t0)
     j SETUP_LEVEL_2
@@ -700,10 +728,19 @@ PROCESS.END:
 	ret
 DRAW_ENEMY:
 	DRAW_GOOMBA:
+		
 		# Checks if goomba is alive(GOOMBA_LIFE == 1)
 		la t0, GOOMBA_LIFE
 		lw t1, 0(t0)
 		beqz t1 DRAW_GOOMBA.END       # If goomba is not alive, jump to the next loop
+
+		li a7 30 	# current time goes to a0
+		ecall
+		la t2 GOOMBA_TIMER
+		lw t0 0(t2) 	# time (in ms)	
+		blt a0 t0 DRAW_GOOMBA.END
+		addi t1 a0 250
+		sw t1 0(t2)
 
 		# Loads the bomb's position
 		la t2, GOOMBA_POS
@@ -728,13 +765,9 @@ DRAW_ENEMY:
 			bnez t0 GOOMBA_MOVE.RIGHT
 			GOOMBA_MOVE.LEFT:
 			addi t4 t4 -1 	# Player X -= 1
-			addi t0 t4 -1 	# t1= X - 2
-			mv t0 t4 		# t0 = Y
 			j PROCESS.ENEMY
 			GOOMBA_MOVE.RIGHT:
 			addi t4 t4 1 	# Player X += 1
-			addi t0 t4 1 	# t0 = X + 2
-			mv t1 t5 		# t1 = Y
 			j PROCESS.ENEMY
 	PROCESS.ENEMY:
 		mv t6 t5
@@ -762,7 +795,8 @@ DRAW_ENEMY:
 		j DRAW_GOOMBA.END
 		DRAW_GOOMBA.TURN:
 			la t1 GOOMBA_DIRECTION
-			beqz t1 DRAW_GOOMBA.FIX_LEFT # If it is going to the left, +1
+			lb t2 0(t1)
+			beqz t2 DRAW_GOOMBA.FIX_LEFT # If it is going to the left, +1
 			addi t6 t6 -1
 			j DRAW_GOOMBA.FIX
 			DRAW_GOOMBA.FIX_LEFT:
