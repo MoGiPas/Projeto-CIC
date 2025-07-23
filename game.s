@@ -20,8 +20,11 @@
 # Game Over
 	.include "img/game_over.data"
 # Songs
-	.include "songs/musica-0.data"
 	.include "songs/songs.data"
+	.include "songs/musica-0.data"
+	.include "songs/musica-1.data"
+	.include "songs/musica-2.data"
+	.include "songs/musica-3.data"
 
 PLAYER_POS: .byte 1, 1
 PLAYER_LIFE: .byte 40
