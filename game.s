@@ -1,9 +1,9 @@
 ########################### Aprendendo a fazer o mapa ############################ 
+ 
 .data
-# Map data
+	# Map
 	.include "maps/level1.data"
 	.include "maps/level2.data"
-	.include "img/BANNER_MARIO.data"
 # Map 
 	.include "img/bomb.data" 	
 	.include "img/floor.data" 			# 0 = ch�o
@@ -19,8 +19,11 @@
 # Game Over
 	.include "img/game_over.data"
 # Songs
-	.include "songs/musica-0.data"
 	.include "songs/songs.data"
+	.include "songs/musica-0.data"
+	.include "songs/musica-1.data"
+	.include "songs/musica-2.data"
+	.include "songs/musica-3.data"
 
 PLAYER_POS: .byte 1, 1
 PLAYER_LIFE: .byte 40
@@ -47,9 +50,9 @@ BOMB_TIMER: .word 0 			# Bomb's timer
 	TITLE_SCREEN_SONG.LOOP:
 	# Music info (MINECRAFT song)
 	li s7,0			# notes count = 0
-	la s0,TAMANHO_0	
+	la s0,LENGTH_MINECRAFT	
 	lw s1,0(s0)		# number of notes
-	la s0,MELODIA_0	# notes adress
+	la s0,NOTES_MINECRAFT	# notes adress
 	li a3,100			# volume
 
     # Waits for user to press space so that the game can begin
