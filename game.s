@@ -1,15 +1,22 @@
-########################### Aprendendo a fazer o mapa ############################ 
+########################## PROJETO BOMBERMAN #################################
+# COISAS PRA MUDAR:
+# 1 - CRIAR INIMIGOS E LOGICA DE ANDAR/ANIMACAO
+# 2 - SPRITES E ARTE DELES(EDITAR)
+# 3 - EDITAR O MAPA 2 E A CONDICAO DE VITORIA PRA CHEGAR NELE
+# 4 - ANIMACAO DA BOMBA EXPLODINDO
+##########################################################################
+
 # Map data
 .data
 	.include "maps/level1.data"
 	.include "maps/level2.data"
 # Map 
 	.include "img/bomb.data" 	
-	.include "img/cobblestone.data" 	# 0 = chão
-	.include "img/wall.data"          		# 1 = parede
-	.include "img/brick.data"         		# 2 = bloco quebrável
-	.include "img/player.data"        	# jogador
-	.include "img/lava.data" 			# lava
+	.include "img/floor.data" 					# 0 = chao
+	.include "img/wall.data"          				# 1 = parede
+	.include "img/brick.data"         				# 2 = bloco quebravel
+	.include "img/player.data"        			# jogador
+	.include "img/lava.data" 					# lava
 	.include "img/BANNER_MARIO.data" 		# banner  lateral
 # Steve
 	.include "img/mario_idle.data"
@@ -236,7 +243,7 @@ PRINT_TILE:
 		li t1 2
 		beq t0 t1 SPRITE.BRICK
 		SPRITE.FLOOR:
-			la a0 cobblestone
+			la a0 floor
 			j PRINT_TILE.GET_SPRITE.END
 		SPRITE.WALL:
 			la a0 wall
