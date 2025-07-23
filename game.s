@@ -5,7 +5,8 @@
 	.include "maps/level1.data"
 	.include "maps/level2.data"
 # Map 
-	.include "img/bomb.data" 	
+	.include "img/bomb.data"
+	.include "img/bannerMario.data" 	
 	.include "img/floor.data" 			# 0 = ch�o
 	.include "img/wall.data"          		# 1 = parede
 	.include "img/brick.data"         		# 2 = bloco quebr�vel
@@ -51,9 +52,9 @@ BOMB_TIMER: .word 0 			# Bomb's timer
 	TITLE_SCREEN_SONG.LOOP:
 	# Music info (MINECRAFT song)
 	li s7,0			# notes count = 0
-	la s0,LENGTH_MINECRAFT	
+	la s0,TAMANHO_0	
 	lw s1,0(s0)		# number of notes
-	la s0,NOTES_MINECRAFT	# notes adress
+	la s0,MELODIA_0	# notes adress
 	li a3,100			# volume
 
     # Waits for user to press space so that the game can begin
