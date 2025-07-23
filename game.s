@@ -771,8 +771,8 @@ GAME_OVER_SONG.LOOP:
         lw t2 4(t1)  			
         li t0 ' '
         beq t2 t0 SETUP_LEVEL_1	# space pressed -> level 1
-		li t0 '\n'
-		beq t2 t0 QUIT		# enter pressed -> Quit
+		li t0 27
+		beq t2 t0 QUIT		# esc pressed -> Quit
 RESPAWN:
    	lb t0, CURR_LEVEL
    	li t1, 1
@@ -825,8 +825,8 @@ ENDING:
         lw t2 4(t1)  			
         li t0 ' '
         beq t2 t0 SETUP_LEVEL_1	# space pressed -> level 1
-		li t0 '\n'
-		beq t2 t0 QUIT		# enter pressed -> Quit
+		li t0 27
+		beq t2 t0 QUIT		# esc pressed -> Quit
 QUIT:
    	li a7, 10
    	ecall
