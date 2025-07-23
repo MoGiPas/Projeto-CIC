@@ -549,6 +549,19 @@ CHECK_TILE:
 	beq s10 s11 PROCESS.BRICK
 	li s11 3
 	beq s10 s11 PROCESS.COLLECT_FLOWER # 3 -> Collects Flower powerup
+
+PROCESS.COLLECT_FLOWER:
+	la t0 BOMB_RADIUS
+	lb t1 0(t0)
+	addi t1 t1 1
+	sb t1 0(t0)
+	SOUND_FLOWER:
+
+	# Turn powerup tile in a floor after being collected
+	li t2 0 # Floor tile
+	sb t2 0(t6)
+
+	j PROCESS.PATH	
 	
 PROCESS.PATH:
 	# Save new position
@@ -585,14 +598,6 @@ PROCESS.BRICK:
 	li a3 127 		# volume
 	li a7 31 		# ecall
 	ecall
-
-PROCESS.COLLECT_FLOWER:
-	la t0 BOMB_RADIUS
-	lb t1 0(t0)
-	addi t1 t1 1
-	sb t1 0(t0)
-	SOUND_FLOWER:
-
 
 PROCESS.END:
 	ret
