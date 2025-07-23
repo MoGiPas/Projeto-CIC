@@ -16,8 +16,8 @@
 	.include "img/mario_idle.data"
 	.include "img/mario_walk1.data"
 	.include "img/mario_walk2.data"
-	.include "img/steve_walk3.data"
-	.include "img/steve_walk4.data"
+	.include "img/mario_walk3.data"
+	.include "img/mario_walk4.data"
 # Game Over
 	.include "img/game_over.data"
 # Songs
@@ -286,7 +286,7 @@ DRAW_PLAYER:
 	beq s8 t0 DRAW_PLAYER.WALK3
     # Qualquer outro frame volta para WALK4
 DRAW_PLAYER.WALK4:
-	    la a0 steve_walk4
+	    la a0 mario_walk4
 	    j DRAW_PLAYER.PRINT
 	
 DRAW_PLAYER.WALK1:
@@ -298,7 +298,7 @@ DRAW_PLAYER.WALK2:
 	    j DRAW_PLAYER.PRINT
 	
 DRAW_PLAYER.WALK3:
-	    la a0 steve_walk3
+	    la a0 mario_walk3
 	    j DRAW_PLAYER.PRINT
 
 DRAW_PLAYER.IDLE_ANIMATION:
