@@ -5,13 +5,12 @@
 # 3 - HUD
 ##########################################################################
 .data
-
-# Map
+	# Map
 	.include "img/telaInicio.data"
 	.include "maps/level1.data"
 	.include "maps/level2.data"
 
-# Tiles  	
+# Map  	
 	.include "img/floor.data" 				# 0 = chao
 	.include "img/wall.data"          		# 1 = parede
 	.include "img/brick.data"         		# 2 = bloco quebravel
@@ -267,12 +266,11 @@ PRINT_UI:
 	li a2,0 		# y0
 	mv a3 s6  		# frame
 	call PRINT
-	la a0 time
+	la a0 timer
 	li a1 288 		# x0 
 	li a2,16 		# y0
 	mv a3 s6  	# frame
 	call PRINT
-
 	la a0 marioHUD
 	li a1 288 		# x0 
 	li a2,32 		# y0
@@ -922,5 +920,4 @@ ENDING:
 QUIT:
    	li a7, 10 		# termina o programa
    	ecall
-
-
+   	
