@@ -785,20 +785,20 @@ EXPLODE_TILE.CONTINUE:
 	li a0 0 	# return 0 (explosion continues)
 	ret
 
-# Verifica se jogador está em posição de explosão
-# Entrada: a0 = x, a1 = y (coordenadas da explosão)
+# Verifies if player is inside explosion range
+# Input: a0 = x, a1 = y (explosion coordinates)
 CHECK_PLAYER_DAMAGE:
-    # Carrega posição do jogador
+    # load player position
     la t0, PLAYER_POS
-    lb t1, 0(t0)        # X do jogador
-    lb t2, 1(t0)        # Y do jogador
+    lb t1, 0(t0)        # Player X
+    lb t2, 1(t0)        # Player Y
     
-    # Compara com posição da explosão
-    bne a0, t1, NO_DAMAGE   # X diferente? Sem dano
-    bne a1, t2, NO_DAMAGE   # Y diferente? Sem dano
+    # Compare with explosion Pos
+    bne a0, t1, NO_DAMAGE   # X different? No damage
+    bne a1, t2, NO_DAMAGE   # Y different? No damage
     
-    # Jogador atingido!
-    # Toca som de dano
+    # Player got hit
+    # Damage sound
     li a0, 47
     li a1, 150
     li a2, 65
@@ -806,7 +806,7 @@ CHECK_PLAYER_DAMAGE:
     li a7, 31
     ecall
     
-    # Reduz vida
+    # Reduce life
     la t0, PLAYER_LIFE
     lb t1, 0(t0)
     addi t1, t1, -1
@@ -819,7 +819,7 @@ CHECK_PLAYER_DAMAGE:
         ret
  
 GAME_OVER:
-	la a0 game_over # carrega o game over
+	la a0 game_over # load GAME_OVER screen
 	mv a1 zero
 	mv a2 zero
 	mv a3 s6
