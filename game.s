@@ -18,6 +18,7 @@
 	.include "img/wall.data"          		# 1 = parede
 	.include "img/brick.data"         		# 2 = bloco quebravel
 	.include "img/player.data"        	# jogador
+	.include "img/bannerPreto.data"
 	
 # Enemies
 	.include "img/goomba.data"
@@ -38,6 +39,18 @@
 # HUD
 	.include "img/bannerMario.data"
 	.include "img/marioHUD.data"
+	.include "img/time.data"
+
+MAX_ENEMIES: .byte 5 		# Enemies max number
+ENEMY_STRUCT_SIZE: .byte 4 	# Each enemy occupies 4 bytes (X,Y,Alive,Type)
+
+ENEMIES_DATA:
+	.space 20  		# MAX_ENEMIES * ENEMY_STRUCT_SIZE = 5 * 4 = 20 bytes
+	# Enemies Structure will be:
+	# Byte 0: X Pos
+	# Byte 1: Y Pos
+	# Byte 2: Status(0 = dead, 1 = alive)
+	# Byte 3: Enemy type
 
 PLAYER_POS: .byte 1, 1
 PLAYER_LIFE: .byte 3
@@ -47,6 +60,7 @@ LAST_MOVE_TIME: .word 0
 IS_BOMB_ACTIVE: .word 0 		# 0 = inactive / 1 = active
 BOMB_POS: .word 0 			# Bomb's Position
 BOMB_TIMER: .word 0 			# Bomb's timer
+
 
 .text 
 # s6 = current frame (0 or 1)
@@ -113,6 +127,19 @@ SETUP_LEVEL_1:
 	la t1 CURR_LEVEL
 	li t0 1	 # Sets the current level'
 	sb t0 0(t1)
+
+	# ENEMIES SETUP
+	la s0 ENEMIES_DATA 	# Loads the base address for enemies
+
+	# Goomba
+	li t0 5 	# X Pos
+	sb t0 0(s0) # Saves X
+	li t0 5 	# Y Pos
+	sb t0 1(s0) # Saves Y
+	li t0 1		# Status: Alive
+	sb t0 2(s0) # Saves Status
+
+	# Koopa
 	
 	j SETUP_MAP
 SETUP_LEVEL_2:
@@ -229,12 +256,22 @@ PRINT_UI:
 	la a0 bannerMario
 	li a1 0 		# x0 
 	li a2 0 		# y0
+	mv a3 s6  		# frame
+	call PRINT
+	la a0 bannerPreto
+	li a1 288 		# x0 
+	li a2,0 		# y0
+	mv a3 s6  		# frame
+	call PRINT
+	la a0 time
+	li a1 288 		# x0 
+	li a2,16 		# y0
 	mv a3 s6  	# frame
 	call PRINT
 
 	la a0 marioHUD
 	li a1 288 		# x0 
-	li a2,0 		# y0
+	li a2,32 		# y0
 	mv a3 s6  	# frame
 	call PRINT
 PRINT_TILE.SETUP:
@@ -620,9 +657,9 @@ EXPLODE_TILE:
 	
 	# Som de BOMBA DEBUG(EXPLOSAO)
 	li a0 30
-	li a1 100
-	li a2 120
-	li a3 127
+	li a1 350
+	li a2 127
+	li a3 120
 	li a7 31
 	ecall
 	
