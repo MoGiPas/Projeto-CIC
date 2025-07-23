@@ -301,9 +301,18 @@ PRINT_TILE:
 			la a0 brick
 			j PRINT_TILE.GET_SPRITE.END
 		SPRITE.POWERUP_FLOWER:
+			slli a1 s0 4
+			addi a1 a1 32
+			slli a2 s1 4
+			mv a3 s6
+			# First draw floor
+			la a0 floor
+			call PRINT
+			# Draw flower over floor
 			la a0 flower
-			j PRINT_TILE.GET_SPRITE.END
-		SPRITE.GOAL:                         # Nova sprite de objetivo
+			call PRINT
+			j PRINT_TILE.LOOP_CONTINUE
+		SPRITE.GOAL:                        
 			la a0 goal
 			j PRINT_TILE.GET_SPRITE.END
 
@@ -316,6 +325,9 @@ PRINT_TILE:
 		slli a2 s1 4
 		mv a3 s6
 		call PRINT
+
+	PRINT_TILE.LOOP_CONTINUE:
+	
 	# Loop back to the next column
 	addi s0 s0 1
 	blt s0 s2 PRINT_TILE
