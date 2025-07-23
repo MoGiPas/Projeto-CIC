@@ -811,7 +811,11 @@ RESPAWN:
    	beq t0, t1, ENDING
 
 GAME_WIN:
-    # Chama tela de vitória
+    la a0 telaVitoria
+	mv a1 zero
+	mv a2 zero
+	mv a3 s6
+	call PRINT
     j ENDING
 
 ENDING:
