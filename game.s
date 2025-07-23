@@ -491,8 +491,6 @@ PROCESS_INPUT:
 	sb t4 0(t3)
 	ret
 	
-	ret
-	
 	# Sets player's  desired posiition
 	MOVE.UP:
 		addi t5 t5 -1 	# Player Y -= 1
