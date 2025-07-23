@@ -768,7 +768,7 @@ EXPLODE_TILE.CONTINUE:
 	li a0 0 	# return 0 (explosion continues)
 	ret 
 GAME_OVER:
-	la a0 game_over
+	la a0 game_over # carrega o game over
 	mv a1 zero
 	mv a2 zero
 	mv a3 s6
@@ -827,7 +827,7 @@ GAME_WIN:
     j ENDING
 
 ENDING:
-	la a0 telaVitoria
+	la a0 telaVitoria # carrega a tela de vitoria
 	mv a1 zero
 	mv a2 zero
 	mv a3 s6
@@ -849,7 +849,7 @@ ENDING:
 		beq s7,s1,ENDING_SONG.LOOP
 		lw a0,0(s0)		# read note
 		lw a1,4(s0)		# note length
-		li a2,3 		# instrument
+		li a2,16 		# instrument
 		li a7,31		# ecall = 31
 		ecall			# play sound
 		mv a0,a1		# move length of note to a0(a0 ms of pause)
