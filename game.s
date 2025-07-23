@@ -18,6 +18,7 @@
 	.include "img/floor.data" 				# 0 = chao
 	.include "img/wall.data"          		# 1 = parede
 	.include "img/brick.data"         		# 2 = bloco quebravel
+	.include "img/goal.data"				# 4 = Objetivo
 	.include "img/player.data"        		# jogador
 	.include "img/bannerPreto.data"
 	
@@ -288,6 +289,8 @@ PRINT_TILE:
 		beq t0 t1 SPRITE.BRICK
 		li t1 3
 		beq t0 t1 SPRITE.POWERUP_FLOWER
+		li t1 4
+		beq t0 t1 SPRITE.GOAL
 		SPRITE.FLOOR:
 			la a0 floor
 			j PRINT_TILE.GET_SPRITE.END
@@ -300,6 +303,10 @@ PRINT_TILE:
 		SPRITE.POWERUP_FLOWER:
 			la a0 flower
 			j PRINT_TILE.GET_SPRITE.END
+		SPRITE.GOAL:                         # Nova sprite de objetivo
+			la a0 goal
+			j PRINT_TILE.GET_SPRITE.END
+
 	PRINT_TILE.GET_SPRITE.END:
 	# Position of the (x, y) tile is ( 16 * x + 32, 16 * y)
 	# The offset to the x position is due to the interface
@@ -549,6 +556,9 @@ CHECK_TILE:
 	beq s10 s11 PROCESS.BRICK
 	li s11 3
 	beq s10 s11 PROCESS.COLLECT_FLOWER # 3 -> Collects Flower powerup
+	li s11 4                             # objetivo
+    beq s10 s11 PROCESS.REACH_GOAL       # Salta para handler
+    j PROCESS.PATH
 
 PROCESS.COLLECT_FLOWER:
 	la t0 BOMB_RADIUS
@@ -562,6 +572,31 @@ PROCESS.COLLECT_FLOWER:
 	sb t2 0(t6)
 
 	j PROCESS.PATH	
+
+PROCESS.REACH_GOAL:
+    # Toca som de vitória
+    li a0 72   # Nota
+    li a1 1000 # Duração
+    li a2 121  # Instrumento (aplausos)
+    li a3 100  # Volume
+    li a7 31   # Syscall play sound
+    ecall
+    
+    # Verifica qual nível está
+    la t0, CURR_LEVEL
+    lb t1, 0(t0)
+    li t2, 1
+    beq t1, t2, NEXT_LEVEL_2    # Se no nível 1, vai para 2
+    li t2, 2
+    beq t1, t2, GAME_WIN        # Se no nível 2, vitória
+    
+    j PROCESS.END
+
+NEXT_LEVEL_2:
+    # Atualiza para nível 2
+    li t3, 2
+    sb t3, 0(t0)
+    j SETUP_LEVEL_2
 	
 PROCESS.PATH:
 	# Save new position
@@ -730,6 +765,10 @@ RESPAWN:
    	beq t0, t1, SETUP_LEVEL_2
 	li t1, 6
    	beq t0, t1, ENDING
+
+GAME_WIN:
+    # Chama tela de vitória
+    j ENDING
 
 ENDING:
 	la a0 ending
