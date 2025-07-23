@@ -11,7 +11,6 @@
 	.include "maps/level2.data"
 
 # Map 
-	.include "img/bomb.data"
 	.include "img/bannerMario.data" 	
 	.include "img/floor.data" 				# 0 = chao
 	.include "img/wall.data"          		# 1 = parede
@@ -21,6 +20,7 @@
 	.include "img/bannerPreto.data"
 
 # Bomb
+	.include "img/bomb.data"
 	.include "img/explosionMiddle.data"
 	
 # Enemies
@@ -784,7 +784,7 @@ EXPLODE_TILE.END_BREAK:
 EXPLODE_TILE.CONTINUE:
 	li a0 0 	# return 0 (explosion continues)
 	ret
-	
+
 # Verifica se jogador está em posição de explosão
 # Entrada: a0 = x, a1 = y (coordenadas da explosão)
 CHECK_PLAYER_DAMAGE:
