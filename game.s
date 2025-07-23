@@ -1,10 +1,8 @@
 ########################## PROJETO BOMBERMAN #################################
 # COISAS PRA MUDAR:
-# 1 - CRIAR INIMIGOS E LOGICA DE ANDAR/ANIMACAO
-# 2 - POWERUPS
-# 3 - SPRITES E ARTE DELES(EDITAR)
-# 4 - EDITAR O MAPA 2 E A CONDICAO DE VITORIA PRA CHEGAR NELE
-# 5 - ANIMACAO DA BOMBA EXPLODINDO
+# 1 - CRIAR INIMIGOS E LOGICA DE ANDAR/ANIMACAO DELES
+# 2 - POWERUPS (implementar)
+# 3 - HUD
 ##########################################################################
 .data
 	# Map
