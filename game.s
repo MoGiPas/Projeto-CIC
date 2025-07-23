@@ -57,10 +57,7 @@ BOMB_TIMER: .word 0 			# Bomb's timer
 	li s6 0
 	li s7 0
 	li s8 1
-	li s10 0 
-	la s11 MELODIA_0
-	la t0 TAMANHO_0
-	lw s0 0(t0) 	# Number of notes
+	li s10 0
 	
 	TITLE_SCREEN:
     # Title screen image
@@ -237,18 +234,8 @@ PRINT_UI:
 	call PRINT
 	la a0 marioHUD
 	li a1 288 		# x0 
-	li a2 0 		# y0
-	mv a3 s6  		# frame
-	call PRINT
-	la a0 marioHUD
-	li a1 288 		# x0 
-	li a2 16 		# y0
-	mv a3 s6  		# frame
-	call PRINT
-	la a0 marioHUD
-	li a1 288 		# x0 
-	li a2 32 		# y0
-	mv a3 s6  		# frame
+	li a2,0 		# y0
+	mv a3 s6  	# frame
 	call PRINT
 PRINT_TILE.SETUP:
 	mv s0 zero	# Current X
@@ -632,7 +619,7 @@ EXPLODE_TILE:
 	bne t2 t3 EXPLODE_TILE.END
 	
 	# Som de DEBUG(EXPLOSAO)
-	li a0 64
+	li a0 35
 	li a1 100
 	li a2 58
 	li a3 127
