@@ -40,7 +40,7 @@
 	.include "img/marioHUD.data"
 
 PLAYER_POS: .byte 1, 1
-PLAYER_LIFE: .byte 40
+PLAYER_LIFE: .byte 3
 CURR_LEVEL: .byte 1
 IS_MOVING: .byte 0
 LAST_MOVE_TIME: .word 0
@@ -56,10 +56,7 @@ BOMB_TIMER: .word 0 			# Bomb's timer
 	li s6 0
 	li s7 0
 	li s8 1
-	li s10 0 
-	la s11 MELODIA_0
-	la t0 TAMANHO_0
-	lw s0 0(t0) 	# Number of notes
+	li s10 0
 	
 	TITLE_SCREEN:
     # Title screen image
@@ -236,7 +233,7 @@ PRINT_UI:
 	call PRINT
 	la a0 marioHUD
 	li a1 288 		# x0 
-	li a2 0 		# y0
+	li a2,0 		# y0
 	mv a3 s6  	# frame
 	call PRINT
 PRINT_TILE.SETUP:
@@ -621,7 +618,7 @@ EXPLODE_TILE:
 	bne t2 t3 EXPLODE_TILE.END
 	
 	# Som de DEBUG(EXPLOSAO)
-	li a0 64
+	li a0 35
 	li a1 100
 	li a2 58
 	li a3 127
