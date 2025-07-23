@@ -672,6 +672,10 @@ EXPLODE_BOMB:
 	mv t4 t2
 	mv t5 t3
 	call EXPLODE_TILE
+	mv a0, t4       # Passa coordenada X
+    mv a1, t5       # Passa coordenada Y
+    call CHECK_PLAYER_DAMAGE
+	
 	
 	# Up
 	la t0 BOMB_POS
@@ -681,6 +685,9 @@ EXPLODE_BOMB:
 	mv t4 t2
 	addi t5 t3 -1
 	call EXPLODE_TILE
+	mv a0, t4       # Passa coordenada X
+    mv a1, t5       # Passa coordenada Y
+    call CHECK_PLAYER_DAMAGE
 	
 	# Down
 	la t0 BOMB_POS
@@ -690,6 +697,9 @@ EXPLODE_BOMB:
 	mv t4 t2
 	addi t5 t3 1
 	call EXPLODE_TILE
+	mv a0, t4       # Passa coordenada X
+    mv a1, t5       # Passa coordenada Y
+    call CHECK_PLAYER_DAMAGE
 	
 	# Left
 	la t0 BOMB_POS
@@ -699,6 +709,9 @@ EXPLODE_BOMB:
 	addi t4 t2 -1
 	mv t5 t3
 	call EXPLODE_TILE
+	mv a0, t4       # Passa coordenada X
+    mv a1, t5       # Passa coordenada Y
+    call CHECK_PLAYER_DAMAGE
 	
 	# Right
 	la t0 BOMB_POS
@@ -708,6 +721,9 @@ EXPLODE_BOMB:
 	addi t4 t2 1
 	mv t5 t3
 	call EXPLODE_TILE
+	mv a0, t4       # Passa coordenada X
+    mv a1, t5       # Passa coordenada Y
+    call CHECK_PLAYER_DAMAGE
 	
 	j EXPLODE.BOMB.END	
 EXPLODE_TILE:
@@ -753,6 +769,7 @@ EXPLODE_TILE.BREAK_BRICK:
 	li t3 5 					# floor
 	beq t2 t3 REVEAL_FLOWER		# changes the current tile to a floor tile
 	# If it wasnt special, then turn it in a floor tile
+
 SPAWN_FLOOR:
 	li t4 0
 	sb t4 0 (t6)
@@ -766,7 +783,41 @@ EXPLODE_TILE.END_BREAK:
 	ret
 EXPLODE_TILE.CONTINUE:
 	li a0 0 	# return 0 (explosion continues)
-	ret 
+	ret
+	
+# Verifica se jogador está em posição de explosão
+# Entrada: a0 = x, a1 = y (coordenadas da explosão)
+CHECK_PLAYER_DAMAGE:
+    # Carrega posição do jogador
+    la t0, PLAYER_POS
+    lb t1, 0(t0)        # X do jogador
+    lb t2, 1(t0)        # Y do jogador
+    
+    # Compara com posição da explosão
+    bne a0, t1, NO_DAMAGE   # X diferente? Sem dano
+    bne a1, t2, NO_DAMAGE   # Y diferente? Sem dano
+    
+    # Jogador atingido!
+    # Toca som de dano
+    li a0, 47
+    li a1, 150
+    li a2, 65
+    li a3, 120
+    li a7, 31
+    ecall
+    
+    # Reduz vida
+    la t0, PLAYER_LIFE
+    lb t1, 0(t0)
+    addi t1, t1, -1
+    sb t1, 0(t0)
+    
+    # Verifica se vida chegou a zero
+    beqz t1, GAME_OVER
+    
+    NO_DAMAGE:
+        ret
+ 
 GAME_OVER:
 	la a0 game_over # carrega o game over
 	mv a1 zero
@@ -806,18 +857,17 @@ GAME_OVER_SONG.LOOP:
         beqz t0 GAME_OVER.AWAIT 	# Nothing pressed -> Loop back
         lw t2 4(t1)  			
         li t0 ' '
-        beq t2 t0 SETUP_LEVEL_1	# space pressed -> level 1
+        beq t2 t0 RESPAWN	# space pressed -> RESPAWN
 		li t0 27
 		beq t2 t0 QUIT		# esc pressed -> Quit
 		j GAME_OVER.AWAIT
 RESPAWN:
-   	lb t0, CURR_LEVEL
-   	li t1, 1
-   	beq t0, t1, SETUP_LEVEL_1
-   	li t1, 2
-   	beq t0, t1, SETUP_LEVEL_2
-	li t1, 6
-   	beq t0, t1, ENDING
+    lb t0, CURR_LEVEL
+    li t1, 1
+    beq t0, t1, SETUP_LEVEL_1
+    li t1, 2
+    beq t0, t1, SETUP_LEVEL_2
+    j SETUP_LEVEL_1  # Padrão para nível 1
 
 GAME_WIN:
     la a0 telaVitoria
@@ -843,7 +893,7 @@ ENDING:
 	li s7,0				# notes count = 0
 	la s0,TAMANHO_1	
 	lw s1,0(s0)			# number of notes
-	la s0,MELODIA_1	# notes adress
+	la s0,MELODIA_1		# notes adress
 	li a3,100				# volume
 	ENDING.AWAIT:   
 		# Play note
