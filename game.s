@@ -5,12 +5,14 @@
 # 3 - HUD
 ##########################################################################
 .data
-	# Map
+GOOMBA_POS: .word 0
+GOOMBA_LIFE: .byte 0
+# Maps
 	.include "img/telaInicio.data"
 	.include "maps/level1.data"
 	.include "maps/level2.data"
 
-# Map  	
+# Tiles  	
 	.include "img/floor.data" 				# 0 = chao
 	.include "img/wall.data"          		# 1 = parede
 	.include "img/brick.data"         		# 2 = bloco quebravel
@@ -24,6 +26,8 @@
 	
 # Enemies
 	.include "img/goomba.data"
+	.include "img/koopa1.data"
+	.include "img/koopa2.data"
 # Mario
 	.include "img/mario_idle.data"
 	.include "img/mario_walk1.data"
@@ -46,17 +50,21 @@
 	.include "img/marioHUD.data"
 	.include "img/time.data"
 
+
 MAX_ENEMIES: .byte 5 		# Enemies max number
 ENEMY_STRUCT_SIZE: .byte 4 	# Each enemy occupies 4 bytes (X,Y,Alive,Type)
 
-ENEMIES_DATA:
-	.space 20  		# MAX_ENEMIES * ENEMY_STRUCT_SIZE = 5 * 4 = 20 bytes
+ENEMY_POS: .word 0
+ENEMY_LIFE: .byte 0
 
-	# Enemies Structure will be:
-	# Byte 0: X Pos
-	# Byte 1: Y Pos
-	# Byte 2: Status(0 = dead, 1 = alive)
-	# Byte 3: Enemy type
+KOOPA_POS: .word 0
+KOOPA_LIFE: .byte 0
+
+GOOMBA_MOVE_TIME: .word 0
+KOOPA_MOVE_TIME: .word 0
+
+GOOMBA_DIRECTION: .byte 0 # 0 = left 1 = right
+KOOPA_DIRECTION: .byte 0 # 0 = below 1 = above
 
 PLAYER_POS: .byte 1, 1
 PLAYER_LIFE: .byte 3
@@ -65,7 +73,7 @@ CURR_LEVEL: .byte 1
 IS_MOVING: .byte 0
 LAST_MOVE_TIME: .word 0
 IS_BOMB_ACTIVE: .word 0 		# 0 = inactive / 1 = active
-BOMB_POS: .word 0 			# Bomb's Position
+BOMB_POS: .word 0 				# Bomb's Position
 BOMB_TIMER: .word 0 			# Bomb's timer
 IS_EXPLOSION_ACTIVE: .word 0 	# 0 = not active / 1  = active
 EXPLOSION_TIMER: .word 0 		# Time in which the explosion started
@@ -126,7 +134,6 @@ EXPLOSION_SIZE: .word 0 	# How many fire coordinates are in the array
 	
 START_GAME:
 	j SETUP_LEVEL_1
-
 # SETUP_LEVEL.X
 # - Loads the level's map information
 # - Initializes the position of players, keys
@@ -138,10 +145,19 @@ SETUP_LEVEL_1:
 	li t0,0x0401	 # Initial Player Position(0x(yx))
 	sh t0, 0(t1)
 	la t1 PLAYER_LIFE
-	li t0 3	 # Initial Player HP
+	li t0 3	 		# Initial Player HP
+	sb t0 0(t1)
+	la t1 GOOMBA_POS
+	li t0 0x301
+	sh t0 0(t1)
+	la t1 GOOMBA_LIFE
+	li t0 1 		# Initial enemy hp(in this case, goomba)
+	sb t0 0(t1)
+	la t1 KOOPA_LIFE
+	li t0 0
 	sb t0 0(t1)
 	la t1 CURR_LEVEL
-	li t0 1	 # Sets the current level'
+	li t0 1	 		# Sets the current level'
 	sb t0 0(t1)
 
 	j SETUP_MAP
@@ -202,6 +218,10 @@ GAME_LOOP.MUSIC_DONE:
 
     # Process input
     call GET_INPUT
+
+	# Show enemy
+	call DRAW_ENEMY
+	DRAW_ENEMY.END:
 	
 	# Check if bomb is active
 	la t0, IS_BOMB_ACTIVE
@@ -215,7 +235,8 @@ GAME_LOOP.MUSIC_DONE:
 	lw t3, 0(t2)              				# Register which time the bomb was placed
 	sub t4, a0, t3
 	li t5, 2000               				# 2000ms = 2 segundos
-	blt t4, t5, GAME_LOOP.CONTINUE 	# Not enough time -> jump
+	blt t4, t5, GAME_LOOP.CONTINUE 			# Not enough time -> jump
+
 	
 	# EXPLODE BOMB!
 	call EXPLODE_BOMB
@@ -299,6 +320,10 @@ PRINT_TILE:
 		beq t0 t1 SPRITE.GOAL
 		li t1 5 # Special brick(has a flower in it)
 		beq t0 t1 SPRITE.BRICK
+		li t1 6 
+		beq t0 t1 SPRITE.GOOMBA
+		li t1 7
+		beq t0 t1 SPRITE.KOOPA
 		SPRITE.FLOOR:
 			la a0 floor
 			j PRINT_TILE.GET_SPRITE.END
@@ -323,6 +348,23 @@ PRINT_TILE:
 		SPRITE.GOAL:                        
 			la a0 goal
 			j PRINT_TILE.GET_SPRITE.END
+		SPRITE.GOOMBA:
+			la a0 goomba
+			j PRINT_TILE.GET_SPRITE.END
+		SPRITE.KOOPA:
+			li a7 30 
+			ecall
+			li t0 1000 # time (in ms)	
+			rem t0 a0 t0
+			li t1 500
+			blt t0 t1 SPRITE.ENEMY.2 
+			SPRITE.ENEMY.1:
+			la a0 koopa1
+			j PRINT_TILE.GET_SPRITE.END
+			SPRITE.ENEMY.2:
+			la a0 koopa2
+			j PRINT_TILE.GET_SPRITE.END
+		
 
 	PRINT_TILE.GET_SPRITE.END:
 	# Position of the (x, y) tile is ( 16 * x + 32, 16 * y)
@@ -551,7 +593,7 @@ PROCESS_INPUT:
 	# Processes the player's desired position
 PROCESS:
 
-	# If destination is the table position and any key was not collected, treat it as a wall.
+	# If destination is the goal position and any key was not collected, treat it as a wall.
 	mv t6 t5
 	slli t6 t6 8
 	add t6 t6 t4
@@ -574,8 +616,8 @@ CHECK_TILE:
 	beq s10 s11 PROCESS.BRICK
 	li s11 3
 	beq s10 s11 PROCESS.COLLECT_FLOWER # 3 -> Collects Flower powerup
-	li s11 4                             # objetivo
-    beq s10 s11 PROCESS.REACH_GOAL       # Salta para handler
+	li s11 4                             # goal
+    beq s10 s11 PROCESS.REACH_GOAL       # jump to handler
 	li s11 5
 	beq s10 s11 PROCESS.BRICK
     j PROCESS.PATH
@@ -647,22 +689,64 @@ PROCESS.WALL:
 
 PROCESS.BRICK:
 	SOUND.BLOCK:
-		li a0 15 	# note
-	li a1 200 		# duration
-	li a2 50 		# instrument
-	li a3 127 		# volume
-	li a7 31 		# ecall
-	ecall
+		li a0 15 		# note
+		li a1 200 		# duration
+		li a2 50 		# instrument
+		li a3 127 		# volume
+		li a7 31 		# ecall
+		ecall
 
 PROCESS.END:
 	ret
+DRAW_ENEMY:
+	DRAW_GOOMBA:
+		# Checks if goomba is alive(GOOMBA_LIFE == 1)
+		la t0, GOOMBA_LIFE
+		lw t1, 0(t0)
+		beqz t1 DRAW_GOOMBA.END       # If goomba is not alive, jump to the next loop
 
+		# Loads the bomb's position
+		la t2, GOOMBA_POS
+		lw t3, 0(t2)         # t3 = 0x00YYXX
+		andi t4, t3, 0xFF    # t4 = X
+		srli t5, t3, 8       # t5 = Y
+
+		# Converts position to screen coordinates
+		slli a1, t4, 4       # x * 16
+		addi a1, a1, 32      # Interface offset
+		slli a2, t5, 4       # y * 16
+		
+		DRAW_GOOMBA.GOOMBA_WALK:
+
+		# Calculates the map address: t6 = &map + 16 * y + x
+		li t0 16
+		mul t1 t5 t0 		# t6 = y * 16
+		add t1 t1 t4		# t6 = y * 16 + x
+		add t6 s5 t1 		# t6 = final tile's address
+		
+		lb t2 0(t6) 	# current tile
+
+		li t3 1  		# Is it a wall?
+		beq t2 t3 EXPLODE_TILE.END
+
+		li t3 2 # Is it a brick? Normal or special?
+		beq t2 t3 EXPLODE_TILE.BREAK_BRICK
+		li t3 5
+		beq t2 t3 EXPLODE_TILE.BREAK_BRICK
+
+		j EXPLODE_TILE.CONTINUE
+		DRAW_GOOMBA.END:
+	
+EXPLODE_TILE.END:
+	li a0 1 	# return 1(stop explosion)
+	ret
+	
 EXPLODE_BOMB:
 	# Get the bomb's position
 	la t0 BOMB_POS
-	lw t1 0(t0) 		# t1 = 0x00YYXX
+	lw t1 0(t0) 			# t1 = 0x00YYXX
 	andi t2 t1 0xFF     	# t2 = X
-	srli t3 t1 8 		# t3 = Y
+	srli t3 t1 8 			# t3 = Y
 	
 	# Tests 5 positions: center, up, down, left, riight
 	
