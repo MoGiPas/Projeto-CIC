@@ -63,7 +63,7 @@ BOMB_TIMER: .word 0 			# Bomb's timer
 	
 	TITLE_SCREEN:
     # Title screen image
-	la a0, tituloInicio
+	la a0, telaInicio
 	call PRINT
 
 	TITLE_SCREEN_SONG.LOOP:
