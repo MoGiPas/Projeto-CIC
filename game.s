@@ -7,8 +7,10 @@
 ##########################################################################
 .data
 	# Map
+	.include "img/telaInicio.data"
 	.include "maps/level1.data"
 	.include "maps/level2.data"
+
 # Map 
 	.include "img/bomb.data"
 	.include "img/bannerMario.data" 	
@@ -59,6 +61,12 @@ BOMB_TIMER: .word 0 			# Bomb's timer
 	la s11 MELODIA_0
 	la t0 TAMANHO_0
 	lw s0 0(t0) 	# Number of notes
+
+	TITLE_SCREEN:
+    # Title screen image
+	la a0, telaInicio
+	call PRINT
+
 	TITLE_SCREEN_SONG.LOOP:
 	# Music info (MINECRAFT song)
 	li s7,0			# notes count = 0
