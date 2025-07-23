@@ -34,6 +34,7 @@
 	.include "img/flower.data" 			# 3 = PowerUp aumenta range
 # Game Over
 	.include "img/game_over.data"
+	.include "img/telaVitoria.data"
 # Songs
 	.include "songs/songs.data"
 	.include "songs/musica-0.data"
