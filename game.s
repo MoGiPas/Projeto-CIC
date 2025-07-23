@@ -291,6 +291,8 @@ PRINT_TILE:
 		beq t0 t1 SPRITE.POWERUP_FLOWER
 		li t1 4
 		beq t0 t1 SPRITE.GOAL
+		li t1 5 # Special brick(has a flower in it)
+		beq t0 t1 SPRITE.BRICK
 		SPRITE.FLOOR:
 			la a0 floor
 			j PRINT_TILE.GET_SPRITE.END
@@ -715,9 +717,21 @@ EXPLODE_TILE:
 	add t6 s5 t1 		# t6 = final tile's address
 	
 	lb t2 0(t6) 	# current tile
-	li t3 2  		# brick
-	bne t2 t3 EXPLODE_TILE.END
+
+	li t3 1  		# Is it a wall?
+	beq t2 t3 EXPLODE_TILE.END
+
+	li t3 2 # Is it a brick? Normal or special?
+	beq t2 t3 EXPLODE_TILE.BREAK_BRICK
+	li t3 5
+	beq t2 t3 EXPLODE_TILE.BREAK_BRICK
+
+	j EXPLODE_TILE.CONTINUE
 	
+EXPLODE_TILE.END:
+	li a0 1 	# return 1(stop explosion)
+	ret
+EXPLODE_TILE.BREAK_BRICK:
 	# Explosion sound
 	li a0 30
 	li a1 350
@@ -725,13 +739,24 @@ EXPLODE_TILE:
 	li a3 120
 	li a7 31
 	ecall
-	
-	li t4 3 		# floor
-	sb t4 0(t6) 	# changes the current tile to a floor tile
-	
-EXPLODE_TILE.END:
-	ret
+	# Is it a special brick?
+	li t3 5 					# floor
+	beq t2 t3 REVEAL_FLOWER		# changes the current tile to a floor tile
+	# If it wasnt special, then turn it in a floor tile
+SPAWN_FLOOR:
+	li t4 0
+	sb t4 0 (t6)
+	j EXPLODE_TILE.END_BREAK
 
+REVEAL_FLOWER:
+	li t4 3
+	sb t4 0(t6)
+EXPLODE_TILE.END_BREAK:
+	li a0 1
+	ret
+EXPLODE_TILE.CONTINUE:
+	li a0 0 	# return 0 (explosion continues)
+	ret 
 GAME_OVER:
 	la a0, ending
 	mv a1, zero
