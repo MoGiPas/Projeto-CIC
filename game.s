@@ -38,9 +38,10 @@
 # HUD
 	.include "img/bannerMario.data"
 	.include "img/marioHUD.data"
+	.include "img/time.data"
 
 PLAYER_POS: .byte 1, 1
-PLAYER_LIFE: .byte 40
+PLAYER_LIFE: .byte 3
 CURR_LEVEL: .byte 1
 IS_MOVING: .byte 0
 LAST_MOVE_TIME: .word 0
@@ -232,12 +233,22 @@ PRINT_UI:
 	la a0 bannerMario
 	li a1 0 		# x0 
 	li a2 0 		# y0
-	mv a3 s6  	# frame
+	mv a3 s6  		# frame
 	call PRINT
 	la a0 marioHUD
 	li a1 288 		# x0 
 	li a2 0 		# y0
-	mv a3 s6  	# frame
+	mv a3 s6  		# frame
+	call PRINT
+	la a0 marioHUD
+	li a1 288 		# x0 
+	li a2 16 		# y0
+	mv a3 s6  		# frame
+	call PRINT
+	la a0 marioHUD
+	li a1 288 		# x0 
+	li a2 32 		# y0
+	mv a3 s6  		# frame
 	call PRINT
 PRINT_TILE.SETUP:
 	mv s0 zero	# Current X
