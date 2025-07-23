@@ -819,7 +819,7 @@ GAME_WIN:
     j ENDING
 
 ENDING:
-	la a0 game_over
+	la a0 telaVitoria
 	mv a1 zero
 	mv a2 zero
 	mv a3 s6
