@@ -64,7 +64,7 @@ GOOMBA_MOVE_TIME: .word 0
 KOOPA_MOVE_TIME: .word 0
 
 GOOMBA_DIRECTION: .byte 0 # 0 = left 1 = right
-KOOPA_DIRECTION: .byte 0 # 0 = below 1 = above
+KOOPA_DIRECTION: .byte 0 # 0 = down 1 = up
 
 PLAYER_POS: .byte 1, 1
 PLAYER_LIFE: .byte 3
@@ -593,7 +593,7 @@ PROCESS_INPUT:
 	# Processes the player's desired position
 PROCESS:
 
-	# If destination is the goal position and any key was not collected, treat it as a wall.
+	# If destination is the goal position treat it as a wall.
 	mv t6 t5
 	slli t6 t6 8
 	add t6 t6 t4
@@ -715,31 +715,58 @@ DRAW_ENEMY:
 		slli a1, t4, 4       # x * 16
 		addi a1, a1, 32      # Interface offset
 		slli a2, t5, 4       # y * 16
-		
-		DRAW_GOOMBA.GOOMBA_WALK:
-
 		# Calculates the map address: t6 = &map + 16 * y + x
+			li t0 16
+			mul t1 t5 t0 		# t6 = y * 16
+			add t1 t1 t4		# t6 = y * 16 + x
+			add t6 s5 t1 		# t6 = final tile's address
+			
+			sb zero 0(t6) 	# current tile
+		DRAW_GOOMBA.GOOMBA_WALK:
+			# Walk
+			lb t0 GOOMBA_DIRECTION # 0 = left // 1 = right
+			bnez t0 GOOMBA_MOVE.RIGHT
+			GOOMBA_MOVE.LEFT:
+			addi t4 t4 -1 	# Player X -= 1
+			addi t0 t4 -1 	# t1= X - 2
+			mv t0 t4 		# t0 = Y
+			j PROCESS.ENEMY
+			GOOMBA_MOVE.RIGHT:
+			addi t4 t4 1 	# Player X += 1
+			addi t0 t4 1 	# t0 = X + 2
+			mv t1 t5 		# t1 = Y
+			j PROCESS.ENEMY
+	PROCESS.ENEMY:
+		mv t6 t5
+		slli t6 t6 8
+		add t6 t6 t4
+	
 		li t0 16
 		mul t1 t5 t0 		# t6 = y * 16
 		add t1 t1 t4		# t6 = y * 16 + x
 		add t6 s5 t1 		# t6 = final tile's address
+			
+		lb t2 0(t6) 		# current tile
+		# Collision
+		li t3 1  	# Is it a wall?
+		beq t2 t3 DRAW_GOOMBA.TURN
+		li t3 2 	# Is it a brick? 
+		beq t2 t3 DRAW_GOOMBA.TURN
+		li t3 5 	# Is it a special brick?
+		beq t2 t3 DRAW_GOOMBA.TURN
+		li t2 6
+		sb t2 0(t6)
+		la t1 GOOMBA_POS
+		sb t4 0(t1)
 		
-		lb t2 0(t6) 	# current tile
-
-		li t3 1  		# Is it a wall?
-		beq t2 t3 EXPLODE_TILE.END
-
-		li t3 2 # Is it a brick? Normal or special?
-		beq t2 t3 EXPLODE_TILE.BREAK_BRICK
-		li t3 5
-		beq t2 t3 EXPLODE_TILE.BREAK_BRICK
-
-		j EXPLODE_TILE.CONTINUE
+		j DRAW_GOOMBA.END
+		DRAW_GOOMBA.TURN:
+			la t1 GOOMBA_DIRECTION
+			lb t0 0(t1)
+			xori t0 t0 1  	# Flip t0
+			sb t0 0(t1)
 		DRAW_GOOMBA.END:
-	
-EXPLODE_TILE.END:
-	li a0 1 	# return 1(stop explosion)
-	ret
+		j DRAW_ENEMY.END
 	
 EXPLODE_BOMB:
 	# Get the bomb's position
