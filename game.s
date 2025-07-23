@@ -7,15 +7,15 @@
 # Map 
 	.include "img/bomb.data"
 	.include "img/bannerMario.data" 	
-	.include "img/floor.data" 			# 0 = ch�o
+	.include "img/floor.data" 			# 0 = chao
 	.include "img/wall.data"          		# 1 = parede
-	.include "img/brick.data"         		# 2 = bloco quebr�vel
+	.include "img/brick.data"         		# 2 = bloco quebravel
 	.include "img/player.data"        	# jogador
 	.include "img/bannerMario.data"
 # Mario
 	.include "img/mario_idle.data"
 	.include "img/mario_walk1.data"
-	.include "img/steve_walk2.data"
+	.include "img/mario_walk2.data"
 	.include "img/steve_walk3.data"
 	.include "img/steve_walk4.data"
 # Game Over
@@ -294,7 +294,7 @@ DRAW_PLAYER.WALK1:
 	    j DRAW_PLAYER.PRINT
 	
 DRAW_PLAYER.WALK2:
-	    la a0 steve_walk2
+	    la a0 mario_walk2
 	    j DRAW_PLAYER.PRINT
 	
 DRAW_PLAYER.WALK3:
