@@ -34,7 +34,6 @@
 	.include "img/flower.data" 			# 3 = PowerUp aumenta range
 # Game Over
 	.include "img/game_over.data"
-	.include "img/ending.data"
 # Songs
 	.include "songs/songs.data"
 	.include "songs/musica-0.data"
@@ -723,11 +722,16 @@ EXPLODE_TILE.END:
 	ret
 
 GAME_OVER:
-	la a0, ending
-	mv a1, zero
-	mv a2, zero
-	mv a3, s6
+	la a0 game_over
+	mv a1 zero
+	mv a2 zero
+	mv a3 s6
 	call PRINT
+	
+	# Switches frame
+	li t0 0xFF200604
+	sw s6 0(t0)
+
 GAME_OVER_SONG.LOOP:
 	# Music info (SWEDEN song)
 	li s7,0				# notes count = 0
@@ -735,9 +739,10 @@ GAME_OVER_SONG.LOOP:
 	lw s1,0(s0)			# number of notes
 	la s0,MELODIA_3	# notes adress
 	li a3,100				# volume
+
 	GAME_OVER.AWAIT:
 	# Play note
-		beq s7,s1,GAME_OVER_SONG.LOOP
+		beq s7,s1,ENDING_SONG.LOOP
 		lw a0,0(s0)		# read note
 		lw a1,4(s0)		# note length
 		li a2,88 		# instrument
@@ -749,14 +754,15 @@ GAME_OVER_SONG.LOOP:
 		addi s0,s0,8		# next note
 		addi s7,s7,1		# add 1 to notes count
 	
-	   	 li t1 0xFF200000
-	    	lw t0 0(t1)	
-	   	andi t0 t0 1
-	    	beqz t0 GAME_OVER.AWAIT
-	    	lw t2 4(t1)  			
-	    	li t0 ' '
-	    	li t0 27
-	    	j GAME_OVER.AWAIT
+	   	li t1 0xFF200000
+        lw t0 0(t1)
+        andi t0 t0 1
+        beqz t0 GAME_OVER.AWAIT 	# Nothing pressed -> Loop back
+        lw t2 4(t1)  			
+        li t0 ' '
+        beq t2 t0 SETUP_LEVEL_1	# space pressed -> level 1
+		li t0 '\n'
+		beq t2 t0 QUIT		# enter pressed -> Quit
 RESPAWN:
    	lb t0, CURR_LEVEL
    	li t1, 1
@@ -771,7 +777,7 @@ GAME_WIN:
     j ENDING
 
 ENDING:
-	la a0 ending
+	la a0 game_over
 	mv a1 zero
 	mv a2 zero
 	mv a3 s6
