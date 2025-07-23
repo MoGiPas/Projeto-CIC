@@ -19,6 +19,9 @@
 	.include "img/goal.data"				# 4 = Objetivo
 	.include "img/player.data"        		# jogador
 	.include "img/bannerPreto.data"
+
+# Bomb
+	.include "img/explosionMiddle.data"
 	
 # Enemies
 	.include "img/goomba.data"
@@ -65,6 +68,13 @@ LAST_MOVE_TIME: .word 0
 IS_BOMB_ACTIVE: .word 0 		# 0 = inactive / 1 = active
 BOMB_POS: .word 0 			# Bomb's Position
 BOMB_TIMER: .word 0 			# Bomb's timer
+IS_EXPLOSION_ACTIVE: .word 0 	# 0 = not active / 1  = active
+EXPLOSION_TIMER: .word 0 		# Time in which the explosion started
+
+# Fire coordinates
+# Space for 1 center + 4 directions * 4 of radius =  17 tiles * 2 bytes/coord = 34 bytes
+EXPLOSION_DATA: .space 34
+EXPLOSION_SIZE: .word 0 	# How many fire coordinates are in the array
 
 
 
@@ -858,6 +868,6 @@ ENDING:
 		li t0 27
 		beq t2 t0 QUIT		# esc pressed -> Quit
 QUIT:
-   	li a7, 10
+   	li a7, 10 		# termina o programa
    	ecall
    	
