@@ -723,7 +723,7 @@ EXPLODE_TILE.END:
 	ret
 
 GAME_OVER:
-	la a0, game_over
+	la a0, ending
 	mv a1, zero
 	mv a2, zero
 	mv a3, s6
@@ -781,17 +781,36 @@ ENDING:
 	li t0 0xFF200604
 	sw s6 0(t0)
 	
+	ENDING_SONG.LOOP:
+	# Music info (SWEDEN song)
+	li s7,0				# notes count = 0
+	la s0,TAMANHO_3	
+	lw s1,0(s0)			# number of notes
+	la s0,MELODIA_3	# notes adress
+	li a3,100				# volume
 	ENDING.AWAIT:   
-        li t1 0xFF200000
-        lw t0 0(t1)	
+		# Play note
+		beq s7,s1,ENDING_SONG.LOOP
+		lw a0,0(s0)		# read note
+		lw a1,4(s0)		# note length
+		li a2,88 		# instrument
+		li a7,31		# ecall = 31
+		ecall			# play sound
+		mv a0,a1		# move length of note to a0(a0 ms of pause)
+		li a7,32		# ecall = 32
+		ecall			# stop for a0 ms
+		addi s0,s0,8		# next note
+		addi s7,s7,1		# add 1 to notes count
+	
+	   	li t1 0xFF200000
+        lw t0 0(t1)
         andi t0 t0 1
-        beqz t0 ENDING.AWAIT
+        beqz t0 ENDING.AWAIT 	# Nothing pressed -> Loop back
         lw t2 4(t1)  			
         li t0 ' '
-        beq t2 t0 SETUP_LEVEL_1
-        li t0 27
-        beq t2 t0 QUIT
-        j ENDING.AWAIT
+        beq t2 t0 SETUP_LEVEL_1	# space pressed -> level 1
+		li t0 '\n'
+		beq t2 t0 QUIT		# enter pressed -> Quit
 QUIT:
    	li a7, 10
    	ecall
