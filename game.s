@@ -795,9 +795,9 @@ DRAW_ENEMY:
 		beq t2 t3 DRAW_GOOMBA.TURN
 		
 		la t1 PLAYER_POS
-		lb t0 0(t1)
+		lw t0 0(t1)
 		la t1 ENEMY_POS
-		lb t1 0(t1)
+		lw t1 0(t1)
 		beq t0 t1 DRAW_ENEMY.PROCESS_MARIO
 
 		li t2 6
@@ -822,7 +822,7 @@ DRAW_ENEMY:
 			xori t0 t0 1  	# Flip t0
 			sb t0 0(t1)
 		DRAW_GOOMBA.END:
-		j DRAW_ENEMY.END
+		j DRAW_KOOPA
 	DRAW_ENEMY.PROCESS_MARIO:
 		# Player got hit
 		# Damage sound
@@ -841,6 +841,124 @@ DRAW_ENEMY:
 		# Verifies if life == 0
 		beqz t1, GAME_OVER
 		j DRAW_GOOMBA.TURN
+	
+	DRAW_KOOPA:
+		# Checks if koopa is alive(KOOPA_LIFE == 1)
+		la t0, KOOPA_LIFE
+		lw t1, 0(t0)
+		beqz t1 DRAW_KOOPA.END       # If goomba is not alive, jump to the next loop
+
+		li a7 30 	# current time goes to a0
+		ecall
+		la t2 KOOPA_TIMER
+		lw t0 0(t2) 	# time (in ms)	
+		blt a0 t0 DRAW_KOOPA.END
+		addi t1 a0 500
+		sw t1 0(t2)
+
+		# Loads the bomb's position
+		la t2, KOOPA_POS
+		lw t3, 0(t2)         # t3 = 0x00YYXX
+		andi t4, t3, 0xFF    # t4 = X
+		srli t5, t3, 8       # t5 = Y
+
+		# Converts position to screen coordinates
+		slli a1, t4, 4       # x * 16
+		addi a1, a1, 32      # Interface offset
+		slli a2, t5, 4       # y * 16
+		# Calculates the map address: t6 = &map + 16 * y + x
+			li t0 16
+			mul t1 t5 t0 		# t6 = y * 16
+			add t1 t1 t4		# t6 = y * 16 + x
+			add t6 s5 t1 		# t6 = final tile's address
+			
+			sb zero 0(t6) 	# current tile
+		DRAW_KOOPA.KOOPA_WALK:
+			# Walk
+			lb t0 KOOPA_DIRECTION # 0 = Up // 1 = Down
+			bnez t0 KOOPA_MOVE.DOWN
+			KOOPA_MOVE.UP:
+			la t0 KOOPA_POS
+			lb t0 0(t0)
+			addi t0 t0 -256
+			la t1 ENEMY_POS
+			sb t0 0(t1)
+			addi t5 t5 -1 	# Player Y -= 1
+			j PROCESS.ENEMY_KOOPA
+			KOOPA_MOVE.DOWN:
+			la t0 KOOPA_POS
+			lb t0 0(t0)
+			addi t0 t0 256
+			la t1 ENEMY_POS
+			sb t0 0(t1)
+			addi t5 t5 1 	# Player Y += 1
+			j PROCESS.ENEMY_KOOPA
+	PROCESS.ENEMY_KOOPA:
+		mv t6 t5
+		slli t6 t6 8
+		add t6 t6 t4
+	
+		li t0 16
+		mul t1 t5 t0 		# t6 = y * 16
+		add t1 t1 t4		# t6 = y * 16 + x
+		add t6 s5 t1 		# t6 = final tile's address
+			
+		lb t2 0(t6) 		# current tile
+		# Collision
+		li t3 1  	# Is it a wall?
+		beq t2 t3 DRAW_KOOPA.TURN
+		li t3 2 	# Is it a brick? 
+		beq t2 t3 DRAW_KOOPA.TURN
+		li t3 5 	# Is it a special brick?
+		beq t2 t3 DRAW_KOOPA.TURN
+		
+		la t1 PLAYER_POS
+		lw t0 0(t1)
+		la t1 ENEMY_POS
+		lw t1 0(t1)
+		beq t0 t1 DRAW_ENEMY.PROCESS_MARIO_KOOPA
+
+		li t2 7
+		sb t2 0(t6)
+		la t1 KOOPA_POS
+		sb t4 0(t1)
+		
+		
+		j DRAW_KOOPA.END
+		DRAW_KOOPA.TURN:
+			la t1 KOOPA_DIRECTION
+			lb t2 0(t1)
+			beqz t2 DRAW_KOOPA.FIX_LEFT # If it is going up, +1
+			addi t6 t6 -16
+			j DRAW_KOOPA.FIX
+			DRAW_KOOPA.FIX_LEFT:
+				addi t6 t6 16
+			DRAW_KOOPA.FIX:
+				li t2 7
+				sb t2 0(t6)
+				lb t0 0(t1)
+				xori t0 t0 1  	# Flip t0
+				sb t0 0(t1)
+		DRAW_KOOPA.END:
+		j DRAW_ENEMY.END
+	DRAW_ENEMY.PROCESS_MARIO_KOOPA:
+		# Player got hit
+		# Damage sound
+		li a0, 47
+		li a1, 150
+		li a2, 65
+		li a3, 120
+		li a7, 31
+		ecall
+		# If Mario goes to goomba
+		# Reduce life
+		la t0, PLAYER_LIFE
+		lb t1, 0(t0)
+		addi t1, t1, -1
+		sb t1, 0(t0)
+		# Verifies if life == 0
+		beqz t1, GAME_OVER
+		j DRAW_KOOPA.TURN
 	
 EXPLODE_BOMB:
 	# Get the bomb's position
