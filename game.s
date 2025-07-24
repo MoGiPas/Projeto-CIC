@@ -13,18 +13,19 @@
 	.include "maps/level3.data"
 	.include "maps/levelMutable.data"
 
-# Tiles  	
+# Tiles
+	.include "img/exterior.data"
 	.include "img/floor.data" 				# 0 = chao
 	.include "img/wall.data"          		# 1 = parede
 	.include "img/brick.data"         		# 2 = bloco quebravel
 	.include "img/goal.data"				# 4 = Objetivo
 	.include "img/player.data"        		# jogador
 	.include "img/bannerPreto.data"
+	.include "img/specialBrick.data"
 
 # Bomb
 	.include "img/bomb.data"
 	.include "img/explosionMiddle.data"
-	
 # Enemies
 	.include "img/goomba.data"
 	.include "img/koopa1.data"
@@ -36,7 +37,8 @@
 	.include "img/mario_walk3.data"
 	.include "img/mario_walk4.data"
 # Powers
-	.include "img/flower.data" 			# 3 = PowerUp aumenta range
+	.include "img/MUSHROOM.data" 			
+	.include "img/mushroom.data"		# 3 = Power Up increases life
 # Game Over
 	.include "img/game_over.data"
 	.include "img/telaVitoria.data"
@@ -197,7 +199,7 @@ SETUP_LEVEL_2:
 	sb t0 0(t1)
 
 	la t1 KOOPA_POS
-	li t0 0xa01
+	li t0 0xa03
 	sh t0 0(t1)
 
 	la t1 CURR_LEVEL
@@ -522,25 +524,27 @@ PRINT_TILE:
 		li t1 2
 		beq t0 t1 SPRITE.BRICK
 		li t1 3
-		beq t0 t1 SPRITE.POWERUP_FLOWER
+		beq t0 t1 SPRITE.POWERUP_MUSHROOM
 		li t1 4
 		beq t0 t1 SPRITE.GOAL
-		li t1 5 # Special brick(has a flower in it)
-		beq t0 t1 SPRITE.BRICK
+		li t1 5 # Special brick(has a MUSHROOM in it)
+		beq t0 t1 SPRITE.SPECIAL_BRICK
 		li t1 6 
 		beq t0 t1 SPRITE.GOOMBA
 		li t1 7
 		beq t0 t1 SPRITE.KOOPA
+		li t1 8
+		beq t0 t1 SPRITE.EXTERIOR
 		SPRITE.FLOOR:
 			la a0 floor
 			j PRINT_TILE.GET_SPRITE.END
 		SPRITE.WALL:
-			la a0 wall
+			la a0 exterior
 			j PRINT_TILE.GET_SPRITE.END
 		SPRITE.BRICK:
 			la a0 brick
 			j PRINT_TILE.GET_SPRITE.END
-		SPRITE.POWERUP_FLOWER:
+		SPRITE.POWERUP_MUSHROOM:
 			slli a1 s0 4
 			addi a1 a1 32
 			slli a2 s1 4
@@ -548,10 +552,13 @@ PRINT_TILE:
 			# First draw floor
 			la a0 floor
 			call PRINT
-			# Draw flower over floor
-			la a0 flower
+			# Draw MUSHROOM over floor
+			la a0 mushroom
 			call PRINT
 			j PRINT_TILE.LOOP_CONTINUE
+		SPRITE.SPECIAL_BRICK:
+			la a0 specialBrick
+			j PRINT_TILE.GET_SPRITE.END
 		SPRITE.GOAL:                        
 			la a0 goal
 			j PRINT_TILE.GET_SPRITE.END
@@ -570,6 +577,9 @@ PRINT_TILE:
 			j PRINT_TILE.GET_SPRITE.END
 			SPRITE.ENEMY.2:
 			la a0 koopa2
+			j PRINT_TILE.GET_SPRITE.END
+		SPRITE.EXTERIOR:
+			la a0 exterior
 			j PRINT_TILE.GET_SPRITE.END
 		
 
@@ -824,23 +834,23 @@ CHECK_TILE:
 	li s11 2
 	beq s10 s11 PROCESS.BRICK
 	li s11 3
-	beq s10 s11 PROCESS.COLLECT_FLOWER # 3 -> Collects Flower powerup
+	beq s10 s11 PROCESS.COLLECT_MUSHROOM # 3 -> Collects MUSHROOM powerup
 	li s11 4                             # goal
     beq s10 s11 PROCESS.REACH_GOAL       # jump to handler
 	li s11 5
-	beq s10 s11 PROCESS.BRICK
+	beq s10 s11 PROCESS.SPECIAL_BRICK
 	li s11 6
 	beq s10 s11 PROCESS.GOOMBA
 	li s11 7
 	beq s10 s11 PROCESS.KOOPA
     j PROCESS.PATH
 
-PROCESS.COLLECT_FLOWER:
+PROCESS.COLLECT_MUSHROOM:
 	la t0 PLAYER_LIFE
 	lb t1 0(t0)
 	addi t1 t1 1
 	sb t1 0(t0)
-	SOUND_FLOWER:
+	SOUND_MUSHROOM:
 
 
 	# Turn powerup tile in a floor after being collected
@@ -929,6 +939,14 @@ PROCESS.WALL:
 	j PROCESS.END
 
 PROCESS.BRICK:
+	SOUND.BLOCK:
+		li a0 15 		# note
+		li a1 200 		# duration
+		li a2 50 		# instrument
+		li a3 127 		# volume
+		li a7 31 		# ecall
+		ecall
+PROCESS.SPECIAL_BRICK:
 	SOUND.BLOCK:
 		li a0 15 		# note
 		li a1 200 		# duration
@@ -1285,7 +1303,7 @@ EXPLODE_TILE.BREAK_BRICK:
 	ecall
 	# Is it a special brick?
 	li t3 5 					# floor
-	beq t2 t3 REVEAL_FLOWER		# changes the current tile to a floor tile
+	beq t2 t3 REVEAL_MUSHROOM		# changes the current tile to a floor tile
 	# If it wasnt special, then turn it in a floor tile
 
 SPAWN_FLOOR:
@@ -1293,7 +1311,7 @@ SPAWN_FLOOR:
 	sb t4 0 (t6)
 	j EXPLODE_TILE.END_BREAK
 
-REVEAL_FLOWER:
+REVEAL_MUSHROOM:
 	li t4 3
 	sb t4 0(t6)
 EXPLODE_TILE.END_BREAK:
