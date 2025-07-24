@@ -217,7 +217,7 @@ SETUP_LEVEL_3:
 	sb t0 0(t1)
 
 	la t1 GOOMBA_POS
-	li t0 0x909
+	li t0 0x309
 	sh t0 0(t1)
 
 	la t1 GOOMBA_LIFE
@@ -233,7 +233,7 @@ SETUP_LEVEL_3:
 	sh t0 0(t1)
 
 	la t1 CURR_LEVEL
-	li t0 2
+	li t0 3
 	sb t0 0(t1)
 	
 	j SETUP_MAP
@@ -640,6 +640,8 @@ PROCESS_INPUT:
 	beq t2 t0 SETUP_LEVEL_1
 	li t0 '2'
 	beq t2 t0 SETUP_LEVEL_2
+	li t0 '3'
+	beq t2 t0 SETUP_LEVEL_3
 	li t0 'b'
 	beq t2 t0 PLACE_BOMB
 	li t0 'z' 
@@ -749,22 +751,24 @@ PROCESS.COLLECT_FLOWER:
 	j PROCESS.PATH	
 
 PROCESS.REACH_GOAL:
-    # Toca som de vitória
-    li a0 72   # Nota
-    li a1 1000 # Duração
-    li a2 121  # Instrumento (aplausos)
+    # Play victory sound
+    li a0 72   # Note
+    li a1 1000 # Duration
+    li a2 121  # Instrument 
     li a3 100  # Volume
     li a7 31   # Syscall play sound
     ecall
     
-    # Verifica qual nível está
+    # Verifies which level are we
     la t0, CURR_LEVEL
     lb t1, 0(t0)
     li t2, 1
     beq t1, t2, NEXT_LEVEL_2    # Se no nível 1, vai para 2
     li t2, 2
-    beq t1, t2, GAME_WIN        # Se no nível 2, vitória
-    
+    beq t1, t2, NEXT_LEVEL_3        # Se no nível 2, vai para 3
+	li t2, 3
+	beq t1, t2 GAME_WIN
+	
     j PROCESS.END
 
 PROCESS.GOOMBA:
@@ -792,6 +796,11 @@ NEXT_LEVEL_2:
     li t3, 2
     sb t3, 0(t0)
     j SETUP_LEVEL_2
+
+NEXT_LEVEL_3:
+	li t3, 3
+	sb t3, 0(t0)
+	j SETUP_LEVEL_3
 	
 PROCESS.PATH:
 	# Save new position
@@ -1277,6 +1286,8 @@ RESPAWN:
     beq t0, t1, SETUP_LEVEL_1
     li t1, 2
     beq t0, t1, SETUP_LEVEL_2
+	li t1, 3
+	beq t0, t1, SETUP_LEVEL_3
     j SETUP_LEVEL_1  # Padrão para nível 1
 
 GAME_WIN:
