@@ -11,6 +11,7 @@ GOOMBA_LIFE: .byte 0
 	.include "img/telaInicio.data"
 	.include "maps/level1.data"
 	.include "maps/level2.data"
+	.include "maps/levelMutable.data"
 
 # Tiles  	
 	.include "img/floor.data" 				# 0 = chao
@@ -57,11 +58,12 @@ ENEMY_STRUCT_SIZE: .byte 4 	# Each enemy occupies 4 bytes (X,Y,Alive,Type)
 ENEMY_POS: .word 0
 ENEMY_LIFE: .byte 0
 
+
 KOOPA_POS: .word 0
 KOOPA_LIFE: .byte 0
 
-GOOMBA_MOVE_TIME: .word 0
-KOOPA_MOVE_TIME: .word 0
+GOOMBA_TIMER: .word 0
+KOOPA_TIMER: .word 0
 
 GOOMBA_DIRECTION: .byte 0 # 0 = left 1 = right
 KOOPA_DIRECTION: .byte 0 # 0 = down 1 = up
@@ -178,14 +180,12 @@ SETUP_LEVEL_2:
 # Resets the map to its original form
 SETUP_MAP:
 	li t2 1
-	la s5 level2
-	bne t0 t2 SETUP_MAP_2
-	la s5, level1
-	SETUP_MAP_2:
+	la s5 levelMutable
 	li t0 0
 	li t1 240 
 SETUP_MAP.LOOP:
 	lb t6 0(s9)
+	sb t6 0(s5)
 	addi s5 s5 1
 	addi s9 s9 1
 	addi t0 t0 1
@@ -670,6 +670,10 @@ CHECK_TILE:
     beq s10 s11 PROCESS.REACH_GOAL       # jump to handler
 	li s11 5
 	beq s10 s11 PROCESS.BRICK
+	li s11 6
+	beq s10 s11 PROCESS.GOOMBA
+	li s11 7
+	beq s10 s11 PROCESS.KOOPA
     j PROCESS.PATH
 
 PROCESS.COLLECT_FLOWER:
@@ -704,8 +708,28 @@ PROCESS.REACH_GOAL:
     
     j PROCESS.END
 
+PROCESS.GOOMBA:
+PROCESS.KOOPA:
+	# Player got hit
+    # Damage sound
+    li a0, 47
+    li a1, 150
+    li a2, 65
+    li a3, 120
+    li a7, 31
+    ecall
+	# If Mario goes to goomba
+	# Reduce life
+    la t0, PLAYER_LIFE
+    lb t1, 0(t0)
+    addi t1, t1, -1
+    sb t1, 0(t0)
+    # Verifies if life == 0
+    beqz t1, GAME_OVER
+	j PROCESS.END
+
 NEXT_LEVEL_2:
-    # Atualiza para nível 2
+    # Updates to level 2
     li t3, 2
     sb t3, 0(t0)
     j SETUP_LEVEL_2
@@ -750,10 +774,19 @@ PROCESS.END:
 	ret
 DRAW_ENEMY:
 	DRAW_GOOMBA:
+		
 		# Checks if goomba is alive(GOOMBA_LIFE == 1)
 		la t0, GOOMBA_LIFE
 		lw t1, 0(t0)
 		beqz t1 DRAW_GOOMBA.END       # If goomba is not alive, jump to the next loop
+
+		li a7 30 	# current time goes to a0
+		ecall
+		la t2 GOOMBA_TIMER
+		lw t0 0(t2) 	# time (in ms)	
+		blt a0 t0 DRAW_GOOMBA.END
+		addi t1 a0 250
+		sw t1 0(t2)
 
 		# Loads the bomb's position
 		la t2, GOOMBA_POS
@@ -777,14 +810,20 @@ DRAW_ENEMY:
 			lb t0 GOOMBA_DIRECTION # 0 = left // 1 = right
 			bnez t0 GOOMBA_MOVE.RIGHT
 			GOOMBA_MOVE.LEFT:
+			la t0 GOOMBA_POS
+			lb t0 0(t0)
+			addi t0 t0 -1
+			la t1 ENEMY_POS
+			sb t0 0(t1)
 			addi t4 t4 -1 	# Player X -= 1
-			addi t0 t4 -1 	# t1= X - 2
-			mv t0 t4 		# t0 = Y
 			j PROCESS.ENEMY
 			GOOMBA_MOVE.RIGHT:
+			la t0 GOOMBA_POS
+			lb t0 0(t0)
+			addi t0 t0 1
+			la t1 ENEMY_POS
+			sb t0 0(t1)
 			addi t4 t4 1 	# Player X += 1
-			addi t0 t4 1 	# t0 = X + 2
-			mv t1 t5 		# t1 = Y
 			j PROCESS.ENEMY
 	PROCESS.ENEMY:
 		mv t6 t5
@@ -804,15 +843,24 @@ DRAW_ENEMY:
 		beq t2 t3 DRAW_GOOMBA.TURN
 		li t3 5 	# Is it a special brick?
 		beq t2 t3 DRAW_GOOMBA.TURN
+		
+		la t1 PLAYER_POS
+		lb t0 0(t1)
+		la t1 ENEMY_POS
+		lb t1 0(t1)
+		beq t0 t1 DRAW_ENEMY.PROCESS_MARIO
+
 		li t2 6
 		sb t2 0(t6)
 		la t1 GOOMBA_POS
 		sb t4 0(t1)
 		
+		
 		j DRAW_GOOMBA.END
 		DRAW_GOOMBA.TURN:
 			la t1 GOOMBA_DIRECTION
-			beqz t1 DRAW_GOOMBA.FIX_LEFT # If it is going to the left, +1
+			lb t2 0(t1)
+			beqz t2 DRAW_GOOMBA.FIX_LEFT # If it is going to the left, +1
 			addi t6 t6 -1
 			j DRAW_GOOMBA.FIX
 			DRAW_GOOMBA.FIX_LEFT:
@@ -825,6 +873,24 @@ DRAW_ENEMY:
 			sb t0 0(t1)
 		DRAW_GOOMBA.END:
 		j DRAW_ENEMY.END
+	DRAW_ENEMY.PROCESS_MARIO:
+		# Player got hit
+		# Damage sound
+		li a0, 47
+		li a1, 150
+		li a2, 65
+		li a3, 120
+		li a7, 31
+		ecall
+		# If Mario goes to goomba
+		# Reduce life
+		la t0, PLAYER_LIFE
+		lb t1, 0(t0)
+		addi t1, t1, -1
+		sb t1, 0(t0)
+		# Verifies if life == 0
+		beqz t1, GAME_OVER
+		j DRAW_GOOMBA.TURN
 	
 EXPLODE_BOMB:
 	# Get the bomb's position
