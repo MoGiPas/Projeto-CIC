@@ -171,8 +171,42 @@ SETUP_LEVEL_1:
 	sb t0 0(t1)
 
 	j SETUP_MAP
+
 SETUP_LEVEL_2:
 	la s9 level2
+
+	la t1 PLAYER_POS
+	li t0, 0x101
+	sh t0, 0(t1)
+
+	la t1 PLAYER_LIFE
+	li t0 3
+	sb t0 0(t1)
+
+	la t1 GOOMBA_POS
+	li t0 0x909
+	sh t0 0(t1)
+
+	la t1 GOOMBA_LIFE
+	li t0 1 		# Initial enemy hp(in this case, goomba)
+	sb t0 0(t1)
+
+	la t1 KOOPA_LIFE	
+	li t0 1
+	sb t0 0(t1)
+
+	la t1 KOOPA_POS
+	li t0 0xa01
+	sh t0 0(t1)
+
+	la t1 CURR_LEVEL
+	li t0 2
+	sb t0 0(t1)
+	
+	j SETUP_MAP
+
+SETUP_LEVEL_3:
+	la s9 level3
 
 	la t1 PLAYER_POS
 	li t0, 0x101
