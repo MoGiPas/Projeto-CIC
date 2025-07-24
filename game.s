@@ -11,6 +11,7 @@ GOOMBA_LIFE: .byte 0
 	.include "img/telaInicio.data"
 	.include "maps/level1.data"
 	.include "maps/level2.data"
+	.include "maps/levelMutable.data"
 
 # Tiles  	
 	.include "img/floor.data" 				# 0 = chao
@@ -56,6 +57,7 @@ ENEMY_STRUCT_SIZE: .byte 4 	# Each enemy occupies 4 bytes (X,Y,Alive,Type)
 
 ENEMY_POS: .word 0
 ENEMY_LIFE: .byte 0
+
 
 KOOPA_POS: .word 0
 KOOPA_LIFE: .byte 0
@@ -178,14 +180,12 @@ SETUP_LEVEL_2:
 # Resets the map to its original form
 SETUP_MAP:
 	li t2 1
-	la s5 level2
-	bne t0 t2 SETUP_MAP_2
-	la s5, level1
-	SETUP_MAP_2:
+	la s5 levelMutable
 	li t0 0
 	li t1 240 
 SETUP_MAP.LOOP:
 	lb t6 0(s9)
+	sb t6 0(s5)
 	addi s5 s5 1
 	addi s9 s9 1
 	addi t0 t0 1
@@ -678,10 +678,6 @@ PROCESS.KOOPA:
     beqz t1, GAME_OVER
 	j PROCESS.END
 
-
-
-
-
 NEXT_LEVEL_2:
     # Updates to level 2
     li t3, 2
@@ -764,9 +760,19 @@ DRAW_ENEMY:
 			lb t0 GOOMBA_DIRECTION # 0 = left // 1 = right
 			bnez t0 GOOMBA_MOVE.RIGHT
 			GOOMBA_MOVE.LEFT:
+			la t0 GOOMBA_POS
+			lb t0 0(t0)
+			addi t0 t0 -1
+			la t1 ENEMY_POS
+			sb t0 0(t1)
 			addi t4 t4 -1 	# Player X -= 1
 			j PROCESS.ENEMY
 			GOOMBA_MOVE.RIGHT:
+			la t0 GOOMBA_POS
+			lb t0 0(t0)
+			addi t0 t0 1
+			la t1 ENEMY_POS
+			sb t0 0(t1)
 			addi t4 t4 1 	# Player X += 1
 			j PROCESS.ENEMY
 	PROCESS.ENEMY:
@@ -787,10 +793,18 @@ DRAW_ENEMY:
 		beq t2 t3 DRAW_GOOMBA.TURN
 		li t3 5 	# Is it a special brick?
 		beq t2 t3 DRAW_GOOMBA.TURN
+		
+		la t1 PLAYER_POS
+		lb t0 0(t1)
+		la t1 ENEMY_POS
+		lb t1 0(t1)
+		beq t0 t1 DRAW_ENEMY.PROCESS_MARIO
+
 		li t2 6
 		sb t2 0(t6)
 		la t1 GOOMBA_POS
 		sb t4 0(t1)
+		
 		
 		j DRAW_GOOMBA.END
 		DRAW_GOOMBA.TURN:
@@ -809,6 +823,24 @@ DRAW_ENEMY:
 			sb t0 0(t1)
 		DRAW_GOOMBA.END:
 		j DRAW_ENEMY.END
+	DRAW_ENEMY.PROCESS_MARIO:
+		# Player got hit
+		# Damage sound
+		li a0, 47
+		li a1, 150
+		li a2, 65
+		li a3, 120
+		li a7, 31
+		ecall
+		# If Mario goes to goomba
+		# Reduce life
+		la t0, PLAYER_LIFE
+		lb t1, 0(t0)
+		addi t1, t1, -1
+		sb t1, 0(t0)
+		# Verifies if life == 0
+		beqz t1, GAME_OVER
+		j DRAW_GOOMBA.TURN
 	
 EXPLODE_BOMB:
 	# Get the bomb's position
