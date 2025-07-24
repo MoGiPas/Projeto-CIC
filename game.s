@@ -48,7 +48,7 @@ GOOMBA_LIFE: .byte 0
 	.include "songs/musica-3.data"
 # HUD
 	.include "img/bannerMario.data"
-	.include "img/life.data"
+	.include "img/marioHUD.data"
 	.include "img/time.data"
 
 
@@ -146,18 +146,27 @@ SETUP_LEVEL_1:
 	la t1 PLAYER_POS
 	li t0,0x0401	 # Initial Player Position(0x(yx))
 	sh t0, 0(t1)
+
 	la t1 PLAYER_LIFE
 	li t0 3	 		# Initial Player HP
 	sb t0 0(t1)
+
 	la t1 GOOMBA_POS
 	li t0 0xb01
 	sh t0 0(t1)
+
 	la t1 GOOMBA_LIFE
 	li t0 1 		# Initial enemy hp(in this case, goomba)
 	sb t0 0(t1)
-	la t1 KOOPA_LIFE
+
+	la t1 KOOPA_LIFE	
 	li t0 0
 	sb t0 0(t1)
+
+	la t1 KOOPA_POS
+	li t0 0xa01
+	sb t0 0(t1)
+
 	la t1 CURR_LEVEL
 	li t0 1	 		# Sets the current level'
 	sb t0 0(t1)
@@ -165,12 +174,15 @@ SETUP_LEVEL_1:
 	j SETUP_MAP
 SETUP_LEVEL_2:
 	la s9 level2
+
 	la t1 PLAYER_POS
 	li t0, 0x101
 	sh t0, 0(t1)
+
 	la t1 PLAYER_LIFE
 	li t0 3
 	sb t0 0(t1)
+
 	la t1 CURR_LEVEL
 	li t0 2
 	sb t0 0(t1)
@@ -277,76 +289,26 @@ ANIMATION.UPDATE.INCREMENT:
 ANIMATION.UPDATE.END:
 
 PRINT_UI:
-
 	la a0 bannerMario
 	li a1 0 		# x0 
 	li a2 0 		# y0
 	mv a3 s6  		# frame
 	call PRINT
-
 	la a0 bannerPreto
 	li a1 288 		# x0 
 	li a2,0 		# y0
 	mv a3 s6  		# frame
 	call PRINT
-
-	la t0,PLAYER_LIFE
-	lb t1,0(t0)
-	li t2,0
-	beq t1,t2,GAME_OVER
-	li t2,1
-	beq t1,t2,PRINTA_1_VIDA
-	li t2,2
-	beq t1,t2,PRINTA_2_VIDAS
-	li t2,3
-	beq t1,t2,PRINTA_3_VIDAS
-
-	PRINTA_VIDA_FIM:
-
-	j PRINT_TILE.SETUP
-
-PRINTA_1_VIDA:
-	la a0 life
-	li a1 290
-	li a2 16
-	mv a3 s6
+	la a0 timer
+	li a1 288 		# x0 
+	li a2,16 		# y0
+	mv a3 s6  	# frame
 	call PRINT
-	j PRINTA_VIDA_FIM
-
-PRINTA_2_VIDAS:
-	la a0 life
-	li a1 290
-	li a2 16
-	mv a3 s6
+	la a0 marioHUD
+	li a1 288 		# x0 
+	li a2,32 		# y0
+	mv a3 s6  	# frame
 	call PRINT
-
-	la a0 life
-	li a1 290
-	li a2 36
-	mv a3 s6
-	call PRINT
-	j PRINTA_VIDA_FIM
-
-PRINTA_3_VIDAS:
-	la a0 life
-	li a1 290
-	li a2 16
-	mv a3 s6
-	call PRINT
-
-	la a0 life
-	li a1 290
-	li a2 36
-	mv a3 s6
-	call PRINT
-	
-	la a0 life
-	li a1 290
-	li a2 56
-	mv a3 s6
-	call PRINT
-	j PRINTA_VIDA_FIM
-
 PRINT_TILE.SETUP:
 	mv s0 zero	# Current X
 	mv s1 zero 	# Current Y
@@ -777,7 +739,7 @@ DRAW_ENEMY:
 		
 		# Checks if goomba is alive(GOOMBA_LIFE == 1)
 		la t0, GOOMBA_LIFE
-		lw t1, 0(t0)
+		lb t1, 0(t0)
 		beqz t1 DRAW_GOOMBA.END       # If goomba is not alive, jump to the next loop
 
 		li a7 30 	# current time goes to a0
@@ -895,8 +857,8 @@ DRAW_ENEMY:
 	DRAW_KOOPA:
 		# Checks if koopa is alive(KOOPA_LIFE == 1)
 		la t0, KOOPA_LIFE
-		lw t1, 0(t0)
-		beqz t1 DRAW_KOOPA.END       # If goomba is not alive, jump to the next loop
+		lb t1, 0(t0)
+		beqz t1 DRAW_KOOPA.END       # If koopa is not alive, jump to the next loop
 
 		li a7 30 	# current time goes to a0
 		ecall
@@ -906,7 +868,7 @@ DRAW_ENEMY:
 		addi t1 a0 500
 		sw t1 0(t2)
 
-		# Loads the bomb's position
+		# Loads the koopa's position
 		la t2, KOOPA_POS
 		lw t3, 0(t2)         # t3 = 0x00YYXX
 		andi t4, t3, 0xFF    # t4 = X
