@@ -307,7 +307,7 @@ PRINT_UI:
 
 PRINTA_1_VIDA:
 	la a0 life
-	li a1 290
+	li a1 296
 	li a2 16
 	mv a3 s6
 	call PRINT
@@ -315,13 +315,13 @@ PRINTA_1_VIDA:
 
 PRINTA_2_VIDAS:
 	la a0 life
-	li a1 290
+	li a1 296
 	li a2 16
 	mv a3 s6
 	call PRINT
 
 	la a0 life
-	li a1 290
+	li a1 296
 	li a2 36
 	mv a3 s6
 	call PRINT
@@ -329,19 +329,19 @@ PRINTA_2_VIDAS:
 
 PRINTA_3_VIDAS:
 	la a0 life
-	li a1 290
+	li a1 296
 	li a2 16
 	mv a3 s6
 	call PRINT
 
 	la a0 life
-	li a1 290
+	li a1 296
 	li a2 36
 	mv a3 s6
 	call PRINT
 	
 	la a0 life
-	li a1 290
+	li a1 296
 	li a2 56
 	mv a3 s6
 	call PRINT
