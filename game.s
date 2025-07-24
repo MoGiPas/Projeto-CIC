@@ -48,7 +48,7 @@ GOOMBA_LIFE: .byte 0
 	.include "songs/musica-3.data"
 # HUD
 	.include "img/bannerMario.data"
-	.include "img/marioHUD.data"
+	.include "img/life.data"
 	.include "img/time.data"
 
 
