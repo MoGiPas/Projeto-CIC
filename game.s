@@ -51,6 +51,9 @@
 	.include "img/life.data"
 	.include "img/time.data"
 	.include "img/life.data"
+	.include "img/FASE1.data"
+	.include "img/FASE2.data"
+	.include "img/FASE3.data"
 
 ENEMY_POS: .word 0
 ENEMY_LIFE: .byte 0
@@ -349,6 +352,17 @@ PRINT_UI:
 	mv a3 s6  		# frame
 	call PRINT
 
+	la t0,CURR_LEVEL
+	lb t1,0(t0)
+	li t2,1
+	beq t1,t2,PRINTA_FASE_1
+	li t2,2
+	beq t1,t2,PRINTA_FASE_2
+	li t2,3
+	beq t1,t2,PRINTA_FASE_3
+
+	PRINTA_FASE_FIM:
+
 	la t0,PLAYER_LIFE
 	lb t1,0(t0)
 	li t2,0
@@ -359,29 +373,57 @@ PRINT_UI:
 	beq t1,t2,PRINTA_2_VIDAS
 	li t2,3
 	beq t1,t2,PRINTA_3_VIDAS
+	li t2,4
+	beq t1,t2,PRINTA_4_VIDAS
+	li t2,5
+	beq t1,t2,PRINTA_5_VIDAS
 
 	PRINTA_VIDA_FIM:
 
 	j PRINT_TILE.SETUP
 
+PRINTA_FASE_1:
+	la a0 FASE1
+	li a1 288
+	li a2 0
+	mv a3 s6
+	call PRINT
+	j PRINTA_FASE_FIM
+
+PRINTA_FASE_2:
+	la a0 FASE2
+	li a1 288
+	li a2 0
+	mv a3 s6
+	call PRINT
+	j PRINTA_FASE_FIM
+
+PRINTA_FASE_3:
+	la a0 FASE3
+	li a1 288
+	li a2 0
+	mv a3 s6
+	call PRINT
+	j PRINTA_FASE_FIM
+
 PRINTA_1_VIDA:
 	la a0 life
-	li a1 290
-	li a2 16
+	li a1 296
+	li a2 40
 	mv a3 s6
 	call PRINT
 	j PRINTA_VIDA_FIM
 
 PRINTA_2_VIDAS:
 	la a0 life
-	li a1 290
-	li a2 16
+	li a1 296
+	li a2 40
 	mv a3 s6
 	call PRINT
 
 	la a0 life
-	li a1 290
-	li a2 36
+	li a1 296
+	li a2 60
 	mv a3 s6
 	call PRINT
 	j PRINTA_VIDA_FIM
@@ -389,19 +431,77 @@ PRINTA_2_VIDAS:
 PRINTA_3_VIDAS:
 	la a0 life
 	li a1 296
-	li a2 16
+	li a2 40
 	mv a3 s6
 	call PRINT
 
 	la a0 life
 	li a1 296
-	li a2 36
+	li a2 60
 	mv a3 s6
 	call PRINT
 	
 	la a0 life
 	li a1 296
-	li a2 56
+	li a2 80
+	mv a3 s6
+	call PRINT
+	j PRINTA_VIDA_FIM
+
+PRINTA_4_VIDAS:
+	la a0 life
+	li a1 296
+	li a2 40
+	mv a3 s6
+	call PRINT
+
+	la a0 life
+	li a1 296
+	li a2 60
+	mv a3 s6
+	call PRINT
+	
+	la a0 life
+	li a1 296
+	li a2 80
+	mv a3 s6
+	call PRINT
+
+	la a0 life
+	li a1 296
+	li a2 100
+	mv a3 s6
+	call PRINT
+	j PRINTA_VIDA_FIM
+
+PRINTA_5_VIDAS:
+	la a0 life
+	li a1 296
+	li a2 40
+	mv a3 s6
+	call PRINT
+
+	la a0 life
+	li a1 296
+	li a2 60
+	mv a3 s6
+	call PRINT
+	
+	la a0 life
+	li a1 296
+	li a2 80
+	mv a3 s6
+	call PRINT
+
+	la a0 life
+	li a1 296
+	li a2 100
+	mv a3 s6
+	call PRINT
+
+	la a0 life
+	li a1 296
+	li a2 120
 	mv a3 s6
 	call PRINT
 	j PRINTA_VIDA_FIM
@@ -738,11 +838,12 @@ CHECK_TILE:
     j PROCESS.PATH
 
 PROCESS.COLLECT_FLOWER:
-	la t0 BOMB_RADIUS
+	la t0 PLAYER_LIFE
 	lb t1 0(t0)
 	addi t1 t1 1
 	sb t1 0(t0)
 	SOUND_FLOWER:
+
 
 	# Turn powerup tile in a floor after being collected
 	li t2 0 # Floor tile
