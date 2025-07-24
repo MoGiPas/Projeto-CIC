@@ -1,8 +1,9 @@
 ########################## PROJETO BOMBERMAN #################################
-# COISAS PRA MUDAR:
-# 1 - CRIAR INIMIGOS E LOGICA DE ANDAR/ANIMACAO DELES
-# 2 - POWERUPS (implementar)
-# 3 - HUD
+# Universidade de Brasilia - Introducao aos Sistemas Computacionais - Turma 01
+# Prof Marcus Vinicius Lamar
+# Felipe Machado - 251000107
+# Moises Gibson - 251025966
+# Marcos Lopes - 251001140
 ##########################################################################
 .data
 
@@ -37,9 +38,9 @@
 	.include "img/mario_walk3.data"
 	.include "img/mario_walk4.data"
 # Powers
-	.include "img/MUSHROOM.data" 			
+	.include "img/flower.data" 			
 	.include "img/mushroom.data"		# 3 = Power Up increases life
-# Game Over
+# Game Over OU Vitoria
 	.include "img/game_over.data"
 	.include "img/telaVitoria.data"
 # Songs
@@ -850,9 +851,6 @@ PROCESS.COLLECT_MUSHROOM:
 	lb t1 0(t0)
 	addi t1 t1 1
 	sb t1 0(t0)
-	SOUND_MUSHROOM:
-
-
 	# Turn powerup tile in a floor after being collected
 	li t2 0 # Floor tile
 	sb t2 0(t6)
@@ -939,7 +937,7 @@ PROCESS.WALL:
 	j PROCESS.END
 
 PROCESS.BRICK:
-	SOUND.BLOCK:
+
 		li a0 15 		# note
 		li a1 200 		# duration
 		li a2 50 		# instrument
@@ -947,7 +945,7 @@ PROCESS.BRICK:
 		li a7 31 		# ecall
 		ecall
 PROCESS.SPECIAL_BRICK:
-	SOUND.BLOCK:
+
 		li a0 15 		# note
 		li a1 200 		# duration
 		li a2 50 		# instrument
