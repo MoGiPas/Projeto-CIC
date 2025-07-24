@@ -50,7 +50,6 @@
 	.include "img/bannerMario.data"
 	.include "img/life.data"
 	.include "img/time.data"
-	.include "img/life.data"
 
 ENEMY_POS: .word 0
 ENEMY_LIFE: .byte 0
