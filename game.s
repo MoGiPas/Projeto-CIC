@@ -5,12 +5,12 @@
 # 3 - HUD
 ##########################################################################
 .data
-GOOMBA_POS: .word 0
-GOOMBA_LIFE: .byte 0
+
 # Maps
 	.include "img/telaInicio.data"
 	.include "maps/level1.data"
 	.include "maps/level2.data"
+	.include "maps/level3.data"
 	.include "maps/levelMutable.data"
 
 # Tiles  	
@@ -50,14 +50,13 @@ GOOMBA_LIFE: .byte 0
 	.include "img/bannerMario.data"
 	.include "img/marioHUD.data"
 	.include "img/time.data"
-
-
-MAX_ENEMIES: .byte 5 		# Enemies max number
-ENEMY_STRUCT_SIZE: .byte 4 	# Each enemy occupies 4 bytes (X,Y,Alive,Type)
+	.include "img/life.data"
 
 ENEMY_POS: .word 0
 ENEMY_LIFE: .byte 0
 
+GOOMBA_POS: .word 0
+GOOMBA_LIFE: .byte 0
 
 KOOPA_POS: .word 0
 KOOPA_LIFE: .byte 0
@@ -160,12 +159,12 @@ SETUP_LEVEL_1:
 	sb t0 0(t1)
 
 	la t1 KOOPA_LIFE	
-	li t0 0
+	li t0 1
 	sb t0 0(t1)
 
 	la t1 KOOPA_POS
 	li t0 0xa01
-	sb t0 0(t1)
+	sh t0 0(t1)
 
 	la t1 CURR_LEVEL
 	li t0 1	 		# Sets the current level'
@@ -182,6 +181,22 @@ SETUP_LEVEL_2:
 	la t1 PLAYER_LIFE
 	li t0 3
 	sb t0 0(t1)
+
+	la t1 GOOMBA_POS
+	li t0 0x909
+	sh t0 0(t1)
+
+	la t1 GOOMBA_LIFE
+	li t0 1 		# Initial enemy hp(in this case, goomba)
+	sb t0 0(t1)
+
+	la t1 KOOPA_LIFE	
+	li t0 1
+	sb t0 0(t1)
+
+	la t1 KOOPA_POS
+	li t0 0xa01
+	sh t0 0(t1)
 
 	la t1 CURR_LEVEL
 	li t0 2
@@ -821,18 +836,18 @@ DRAW_ENEMY:
 			bnez t0 GOOMBA_MOVE.RIGHT
 			GOOMBA_MOVE.LEFT:
 			la t0 GOOMBA_POS
-			lb t0 0(t0)
+			lw t0 0(t0)
 			addi t0 t0 -1
 			la t1 ENEMY_POS
-			sb t0 0(t1)
+			sw t0 0(t1)
 			addi t4 t4 -1 	# Player X -= 1
 			j PROCESS.ENEMY
 			GOOMBA_MOVE.RIGHT:
 			la t0 GOOMBA_POS
-			lb t0 0(t0)
+			lw t0 0(t0)
 			addi t0 t0 1
 			la t1 ENEMY_POS
-			sb t0 0(t1)
+			sw t0 0(t1)
 			addi t4 t4 1 	# Player X += 1
 			j PROCESS.ENEMY
 	PROCESS.ENEMY:
@@ -855,9 +870,9 @@ DRAW_ENEMY:
 		beq t2 t3 DRAW_GOOMBA.TURN
 		
 		la t1 PLAYER_POS
-		lw t0 0(t1)
+		lh t0 0(t1)
 		la t1 ENEMY_POS
-		lw t1 0(t1)
+		lh t1 0(t1)
 		beq t0 t1 DRAW_ENEMY.PROCESS_MARIO
 
 		li t2 6
@@ -939,18 +954,18 @@ DRAW_ENEMY:
 			bnez t0 KOOPA_MOVE.DOWN
 			KOOPA_MOVE.UP:
 			la t0 KOOPA_POS
-			lb t0 0(t0)
+			lw t0 0(t0)
 			addi t0 t0 -256
 			la t1 ENEMY_POS
-			sb t0 0(t1)
+			sw t0 0(t1)
 			addi t5 t5 -1 	# Player Y -= 1
 			j PROCESS.ENEMY_KOOPA
 			KOOPA_MOVE.DOWN:
 			la t0 KOOPA_POS
-			lb t0 0(t0)
+			lw t0 0(t0)
 			addi t0 t0 256
 			la t1 ENEMY_POS
-			sb t0 0(t1)
+			sw t0 0(t1)
 			addi t5 t5 1 	# Player Y += 1
 			j PROCESS.ENEMY_KOOPA
 	PROCESS.ENEMY_KOOPA:
@@ -973,15 +988,15 @@ DRAW_ENEMY:
 		beq t2 t3 DRAW_KOOPA.TURN
 		
 		la t1 PLAYER_POS
-		lw t0 0(t1)
+		lh t0 0(t1)
 		la t1 ENEMY_POS
-		lw t1 0(t1)
+		lh t1 0(t1)
 		beq t0 t1 DRAW_ENEMY.PROCESS_MARIO_KOOPA
 
 		li t2 7
 		sb t2 0(t6)
 		la t1 KOOPA_POS
-		sb t4 0(t1)
+		sb t5 1(t1)
 		
 		
 		j DRAW_KOOPA.END
