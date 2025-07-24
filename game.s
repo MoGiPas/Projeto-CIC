@@ -41,15 +41,12 @@
 	.include "img/game_over.data"
 	.include "img/telaVitoria.data"
 # Songs
-	.include "songs/songs.data"
 	.include "songs/musica-0.data"
 	.include "songs/musica-1.data"
 	.include "songs/musica-2.data"
 	.include "songs/musica-3.data"
 # HUD
 	.include "img/bannerMario.data"
-	.include "img/life.data"
-	.include "img/time.data"
 	.include "img/life.data"
 	.include "img/FASE1.data"
 	.include "img/FASE2.data"
