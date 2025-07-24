@@ -48,7 +48,7 @@ GOOMBA_LIFE: .byte 0
 	.include "songs/musica-3.data"
 # HUD
 	.include "img/bannerMario.data"
-	.include "img/marioHUD.data"
+	.include "img/life.data"
 	.include "img/time.data"
 
 
@@ -277,26 +277,76 @@ ANIMATION.UPDATE.INCREMENT:
 ANIMATION.UPDATE.END:
 
 PRINT_UI:
+
 	la a0 bannerMario
 	li a1 0 		# x0 
 	li a2 0 		# y0
 	mv a3 s6  		# frame
 	call PRINT
+
 	la a0 bannerPreto
 	li a1 288 		# x0 
 	li a2,0 		# y0
 	mv a3 s6  		# frame
 	call PRINT
-	la a0 timer
-	li a1 288 		# x0 
-	li a2,16 		# y0
-	mv a3 s6  	# frame
+
+	la t0,PLAYER_LIFE
+	lb t1,0(t0)
+	li t2,0
+	beq t1,t2,GAME_OVER
+	li t2,1
+	beq t1,t2,PRINTA_1_VIDA
+	li t2,2
+	beq t1,t2,PRINTA_2_VIDAS
+	li t2,3
+	beq t1,t2,PRINTA_3_VIDAS
+
+	PRINTA_VIDA_FIM:
+
+	j PRINT_TILE.SETUP
+
+PRINTA_1_VIDA:
+	la a0 life
+	li a1 290
+	li a2 16
+	mv a3 s6
 	call PRINT
-	la a0 marioHUD
-	li a1 288 		# x0 
-	li a2,32 		# y0
-	mv a3 s6  	# frame
+	j PRINTA_VIDA_FIM
+
+PRINTA_2_VIDAS:
+	la a0 life
+	li a1 290
+	li a2 16
+	mv a3 s6
 	call PRINT
+
+	la a0 life
+	li a1 290
+	li a2 36
+	mv a3 s6
+	call PRINT
+	j PRINTA_VIDA_FIM
+
+PRINTA_3_VIDAS:
+	la a0 life
+	li a1 290
+	li a2 16
+	mv a3 s6
+	call PRINT
+
+	la a0 life
+	li a1 290
+	li a2 36
+	mv a3 s6
+	call PRINT
+	
+	la a0 life
+	li a1 290
+	li a2 56
+	mv a3 s6
+	call PRINT
+	j PRINTA_VIDA_FIM
+
 PRINT_TILE.SETUP:
 	mv s0 zero	# Current X
 	mv s1 zero 	# Current Y
