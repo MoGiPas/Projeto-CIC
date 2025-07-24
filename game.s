@@ -48,7 +48,7 @@
 	.include "songs/musica-3.data"
 # HUD
 	.include "img/bannerMario.data"
-	.include "img/marioHUD.data"
+	.include "img/life.data"
 	.include "img/time.data"
 	.include "img/life.data"
 
@@ -332,7 +332,7 @@ PRINT_UI:
 
 PRINTA_1_VIDA:
 	la a0 life
-	li a1 296
+	li a1 290
 	li a2 16
 	mv a3 s6
 	call PRINT
@@ -340,13 +340,13 @@ PRINTA_1_VIDA:
 
 PRINTA_2_VIDAS:
 	la a0 life
-	li a1 296
+	li a1 290
 	li a2 16
 	mv a3 s6
 	call PRINT
 
 	la a0 life
-	li a1 296
+	li a1 290
 	li a2 36
 	mv a3 s6
 	call PRINT
