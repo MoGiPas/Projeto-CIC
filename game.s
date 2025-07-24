@@ -1,8 +1,9 @@
 ########################## PROJETO BOMBERMAN #################################
-# COISAS PRA MUDAR:
-# 1 - CRIAR INIMIGOS E LOGICA DE ANDAR/ANIMACAO DELES
-# 2 - POWERUPS (implementar)
-# 3 - HUD
+# Universidade de Brasilia - Introducao aos Sistemas Computacionais - Turma 01
+# Prof Marcus Vinicius Lamar
+# Felipe Machado - 251000107
+# Moises Gibson - 251025966
+# Marcos Lopes - 251001140
 ##########################################################################
 .data
 
@@ -37,9 +38,9 @@
 	.include "img/mario_walk3.data"
 	.include "img/mario_walk4.data"
 # Powers
-	.include "img/MUSHROOM.data" 			
+	.include "img/flower.data" 			
 	.include "img/mushroom.data"		# 3 = Power Up increases life
-# Game Over
+# Game Over OU Vitoria
 	.include "img/game_over.data"
 	.include "img/telaVitoria.data"
 # Songs
@@ -743,16 +744,8 @@ PROCESS_INPUT:
 	beq t2 t0 MOVE.DOWN
 	li t0 'd'
 	beq t2 t0 MOVE.RIGHT
-	li t0 '1'
-	beq t2 t0 SETUP_LEVEL_1
-	li t0 '2'
-	beq t2 t0 SETUP_LEVEL_2
-	li t0 '3'
-	beq t2 t0 SETUP_LEVEL_3
 	li t0 'b'
 	beq t2 t0 PLACE_BOMB
-	li t0 'z' 
-	beq t2 t0 GAME_OVER
 	# If no key was pressed, IS_MOVING <- 0
 	la t3 IS_MOVING
 	li t4 0
@@ -849,8 +842,14 @@ PROCESS.COLLECT_MUSHROOM:
 	lb t1 0(t0)
 	addi t1 t1 1
 	sb t1 0(t0)
-	SOUND_MUSHROOM:
 
+	# Play powerup sound
+	li a0, 84
+	li a1, 200
+	li a2, 34
+	li a3, 120
+	li a7, 31
+	ecall
 
 	# Turn powerup tile in a floor after being collected
 	li t2 0 # Floor tile
@@ -930,26 +929,26 @@ PROCESS.PATH:
 PROCESS.WALL:
 	SOUND.WALL:
 	li a0 15 	# note
-	li a1 500 	# duration
-	li a2 5 	# instrument
-	li a3 100 	# volume
+	li a1 250 	# duration
+	li a2 6 	# instrument
+	li a3 120 	# volume
 	li a7 31 	# ecall
 	ecall
 	j PROCESS.END
 
 PROCESS.BRICK:
-	SOUND.BLOCK:
-		li a0 15 		# note
-		li a1 200 		# duration
-		li a2 50 		# instrument
+
+		li a0 20 		# note
+		li a1 250 		# duration
+		li a2 7 		# instrument
 		li a3 127 		# volume
 		li a7 31 		# ecall
 		ecall
 PROCESS.SPECIAL_BRICK:
-	SOUND.BLOCK:
-		li a0 15 		# note
-		li a1 200 		# duration
-		li a2 50 		# instrument
+
+		li a0 20 		# note
+		li a1 250 		# duration
+		li a2 7 		# instrument
 		li a3 127 		# volume
 		li a7 31 		# ecall
 		ecall
@@ -1365,7 +1364,7 @@ GAME_OVER:
 	sw s6 0(t0)
 
 GAME_OVER_SONG.LOOP:
-	# Music info (SWEDEN song)
+	# Music info (musica3)
 	li s7,0				# notes count = 0
 	la s0,TAMANHO_3	
 	lw s1,0(s0)			# number of notes
