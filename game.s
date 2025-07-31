@@ -1,6 +1,7 @@
 ########################## PROJETO BOMBERMAN #################################
 # Universidade de Brasilia - Introducao aos Sistemas Computacionais - Turma 01
 # Prof Marcus Vinicius Lamar
+# ---Grupo 14---
 # Felipe Machado - 251000107
 # Moises Gibson - 251025966
 # Marcos Lopes - 251001140
@@ -746,6 +747,16 @@ PROCESS_INPUT:
 	beq t2 t0 MOVE.RIGHT
 	li t0 'b'
 	beq t2 t0 PLACE_BOMB
+	li t0 '1'
+	beq t2 t0 SETUP_LEVEL_1
+	li t0 '2'
+	beq t2 t0 SETUP_LEVEL_2
+	li t0 '3'
+	beq t2 t0 SETUP_LEVEL_3
+	li t0 'z'
+	beq t2 t0 GAME_OVER		# Game Over
+	li t0 'v'
+	beq t2 t0 GAME_WIN		# Game Win
 	# If no key was pressed, IS_MOVING <- 0
 	la t3 IS_MOVING
 	li t4 0
